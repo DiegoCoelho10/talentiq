@@ -391,8 +391,8 @@ body{font-family:'Montserrat',sans-serif;background:var(--gray);color:var(--text
       <div class="sb-mark"><svg viewBox="0 0 24 24"><path d="M12,3L1,9L12,15L21,10.09V17H23V9M5,13.18V17.18L12,21L19,17.18V13.18L12,17L5,13.18Z"/></svg></div>
       <div class="sb-wordmark">TALENT<span>IQ</span></div>
     </div>
-    <button class="sb-toggle" onclick="toggleSidebar()">
-      <svg viewBox="0 0 24 24"><path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"/></svg>
+    <button class="sb-toggle" id="sb-toggle-btn" onclick="toggleSidebar()">
+      <svg id="sb-toggle-icon" viewBox="0 0 24 24"><path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"/></svg>
     </button>
   </div>
   <div class="sb-online">
@@ -423,6 +423,10 @@ body{font-family:'Montserrat',sans-serif;background:var(--gray);color:var(--text
       <span class="sb-label">Pipeline Kanban</span>
     </div>
     <div class="nav-section-lbl">Candidatos</div>
+    <div class="nav-item" onclick="navTo('entrevista',this)">
+      <svg viewBox="0 0 24 24"><path d="M17,12V3A1,1 0 0,0 16,2H3A1,1 0 0,0 2,3V17L6,13H16A1,1 0 0,0 17,12M21,6H19V15H6V17A1,1 0 0,0 7,18H18L22,22V7A1,1 0 0,0 21,6Z"/></svg>
+      <span class="sb-label">Sala de Entrevista</span>
+    </div>
     <div class="nav-item" onclick="navTo('banco',this)">
       <svg viewBox="0 0 24 24"><path d="M16,13C15.71,13 15.38,13 15.03,13.05C16.19,13.89 17,15 17,16.5V19H23V16.5C23,14.17 18.33,13 16,13M8,13C5.67,13 1,14.17 1,16.5V19H15V16.5C15,14.17 10.33,13 8,13M8,11A3,3 0 0,0 11,8A3,3 0 0,0 8,5A3,3 0 0,0 5,8A3,3 0 0,0 8,11M16,11A3,3 0 0,0 19,8A3,3 0 0,0 16,5A3,3 0 0,0 13,8A3,3 0 0,0 16,11Z"/></svg>
       <span class="sb-label">Banco de Talentos</span>
@@ -555,6 +559,75 @@ body{font-family:'Montserrat',sans-serif;background:var(--gray);color:var(--text
       <div class="kb-col col-admitido">
         <div class="kb-col-hd"><span class="kb-col-title">Admitido ✓</span><span class="kb-count" id="kc-admitido">0</span></div>
         <div class="kb-cards" id="kcol-admitido" ondragover="onDragOver(event)" ondrop="onDrop(event,'Admitido')"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENTREVISTA -->
+  <div class="page" id="page-entrevista" style="padding:20px 24px;overflow:hidden">
+    <div style="display:grid;grid-template-columns:1fr 420px;gap:16px;height:calc(100vh - 130px)">
+      <!-- VIDEO -->
+      <div style="background:var(--dark);border-radius:14px;overflow:hidden;display:flex;flex-direction:column">
+        <div style="padding:12px 18px;background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+          <span style="color:var(--gold);font-size:.8rem;font-weight:800">🎥 Videoconferência — TALENTIQ</span>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="text" id="jitsi-room-input" placeholder="nome-da-sala"
+              style="background:rgba(255,255,255,.1);border:1px solid rgba(201,167,125,.3);border-radius:7px;color:white;padding:5px 9px;font-family:inherit;font-size:.72rem;width:140px">
+            <button onclick="entrarSala()" style="padding:6px 12px;border-radius:7px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:white;font-family:inherit;font-size:.7rem;font-weight:700;cursor:pointer">▶ Entrar</button>
+            <button onclick="copiarLink()" id="btn-copiar" style="display:none;padding:6px 12px;border-radius:7px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:white;font-family:inherit;font-size:.7rem;font-weight:700;cursor:pointer">📋 Link</button>
+            <button onclick="encerrarSala()" id="btn-encerrar" style="display:none;padding:6px 12px;border-radius:7px;border:1px solid rgba(225,29,72,.3);background:rgba(225,29,72,.1);color:var(--danger);font-family:inherit;font-size:.7rem;font-weight:700;cursor:pointer">✕ Encerrar</button>
+          </div>
+        </div>
+        <div style="flex:1;position:relative" id="jitsi-wrap">
+          <div id="jitsi-placeholder" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,#041a19,#0a3530)">
+            <div style="font-size:3rem;margin-bottom:14px;opacity:.5">📹</div>
+            <h3 style="color:white;font-size:1rem;font-weight:700;margin-bottom:6px">Videoconferência</h3>
+            <p style="font-size:.76rem;color:rgba(255,255,255,.4);text-align:center;max-width:260px;line-height:1.6">Selecione um candidato ao lado ou crie uma sala manualmente</p>
+            <button onclick="criarSalaManual()" style="margin-top:16px;padding:11px 24px;background:linear-gradient(135deg,var(--teal),var(--teal-l));color:var(--gold);border:none;border-radius:9px;font-family:inherit;font-size:.8rem;font-weight:800;cursor:pointer">🎥 Criar Sala Agora</button>
+          </div>
+          <div id="jitsi-container" style="display:none;width:100%;height:100%"></div>
+        </div>
+      </div>
+      <!-- PAINEL CANDIDATO -->
+      <div style="background:var(--white);border-radius:14px;border:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden">
+        <div style="padding:14px 18px;background:linear-gradient(135deg,var(--teal),var(--teal-l));flex-shrink:0">
+          <div style="color:var(--gold);font-size:.82rem;font-weight:800">🎯 Candidato em Entrevista</div>
+          <div style="color:rgba(255,255,255,.5);font-size:.65rem;margin-top:2px">Selecione para iniciar a entrevista</div>
+        </div>
+        <div style="padding:12px 14px;background:var(--gray);border-bottom:1px solid var(--border);flex-shrink:0">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div>
+              <label style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);display:block;margin-bottom:4px">Candidato</label>
+              <select id="sel-cand-entrevista" onchange="selecionarCandEntrevista()" style="width:100%;padding:7px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:inherit;font-size:.75rem;background:white">
+                <option value="">— Selecione —</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);display:block;margin-bottom:4px">Mover para</label>
+              <select id="sel-mover-kanban" style="width:100%;padding:7px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:inherit;font-size:.75rem;background:white">
+                <option value="">— Kanban —</option>
+                <option>Triagem</option><option>Entrevista</option><option>Avaliação</option><option>Proposta</option><option>Admitido</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:14px" id="painel-cand-entrevista">
+          <div style="text-align:center;padding:30px;color:var(--muted)">
+            <div style="font-size:2rem;margin-bottom:8px">🎯</div>
+            <p style="font-size:.76rem">Selecione um candidato para ver o perfil e iniciar a entrevista.</p>
+          </div>
+        </div>
+        <div style="padding:12px 14px;border-top:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;gap:8px">
+          <div>
+            <label style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);display:block;margin-bottom:4px">Observações da Entrevista</label>
+            <textarea id="obs-entrevista" placeholder="Impressões, pontos fortes, dúvidas..." style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:7px;font-family:inherit;font-size:.76rem;resize:none;height:60px;line-height:1.6;transition:.2s"></textarea>
+          </div>
+          <div style="display:flex;gap:7px">
+            <button onclick="registrarAprovado()" style="flex:1;padding:10px;border-radius:8px;background:var(--success);color:white;border:none;font-family:inherit;font-size:.76rem;font-weight:800;cursor:pointer">⭐ Pré-Selecionar</button>
+            <button onclick="registrarReprovado()" style="flex:1;padding:10px;border-radius:8px;background:var(--danger);color:white;border:none;font-family:inherit;font-size:.76rem;font-weight:800;cursor:pointer">❌ Reprovar</button>
+            <button onclick="salvarMoverKanban()" style="padding:10px 14px;border-radius:8px;background:var(--teal);color:var(--gold);border:none;font-family:inherit;font-size:.76rem;font-weight:800;cursor:pointer">📌</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1289,11 +1362,10 @@ function renderEventosLista() {
 }
 
 function popularSelectCandidatos() {
-  const sel=document.getElementById('ev-candidato');if(!sel)return;
-  const val=sel.value;
-  sel.innerHTML='<option value="">— Nenhum —</option>';
-  CANDIDATOS.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.nome;sel.appendChild(o);});
-  if(val)sel.value=val;
+  const val2=sel2.value;
+  sel2.innerHTML='<option value="">— Selecione —</option>';
+  CANDIDATOS.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.nome+' · '+(c.vaga||'—');sel2.appendChild(o);});
+  if(val2)sel2.value=val2;
 }
 
 window.salvarEvento = async function() {
@@ -1468,10 +1540,127 @@ function renderConfigStats() {
   el.innerHTML=stats.map(([l,v])=>'<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 11px;background:var(--gray);border-radius:8px;margin-bottom:8px"><span style="font-size:.73rem;color:var(--muted);font-weight:600">'+l+'</span><span style="font-size:.86rem;font-weight:800;color:var(--teal)">'+v+'</span></div>').join('');
 }
 
+// ══ JITSI / ENTREVISTA ══
+let jitsiAPI = null;
+let jitsiSala = null;
+let candEntrevistaId = null;
+
+function slugify(s){return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
+function gerarNomeSala(nome){const d=new Date();return 'talentiq-'+(nome?slugify(nome.split(' ')[0]):'entrevista')+'-'+d.getDate()+(d.getMonth()+1)+d.getFullYear();}
+
+function abrirJitsi(nomeSala){
+  const container=document.getElementById('jitsi-container');
+  const placeholder=document.getElementById('jitsi-placeholder');
+  jitsiSala=nomeSala;
+  if(jitsiAPI){try{jitsiAPI.dispose();}catch(e){}jitsiAPI=null;}
+  container.innerHTML='';container.style.display='block';placeholder.style.display='none';
+  document.getElementById('jitsi-room-input').value=nomeSala;
+  document.getElementById('btn-copiar').style.display='flex';
+  document.getElementById('btn-encerrar').style.display='flex';
+
+  function criarSala(){
+    jitsiAPI=new window.JitsiMeetExternalAPI('meet.jit.si',{
+      roomName:nomeSala,width:'100%',height:'100%',parentNode:container,
+      userInfo:{displayName:USER?USER.nome:'TALENTIQ Recrutador'},
+      configOverwrite:{startWithAudioMuted:false,startWithVideoMuted:false,disableDeepLinking:true,prejoinPageEnabled:false},
+      interfaceConfigOverwrite:{APP_NAME:'TALENTIQ',SHOW_JITSI_WATERMARK:false,TOOLBAR_ALWAYS_VISIBLE:false,MOBILE_APP_PROMO:false}
+    });
+  }
+  if(window.JitsiMeetExternalAPI){criarSala();}
+  else{
+    const s=document.createElement('script');s.src='https://meet.jit.si/external_api.js';
+    s.onload=criarSala;s.onerror=()=>toast('⚠️ Erro ao carregar vídeo.','danger');
+    document.head.appendChild(s);
+  }
+  toast('🎥 Sala aberta! Copie o link para o candidato.','success');
+}
+
+window.criarSalaManual=function(){
+  const input=document.getElementById('jitsi-room-input');
+  const nome=input?.value.trim()||gerarNomeSala('entrevista');
+  abrirJitsi(nome);
+};
+window.entrarSala=function(){
+  const v=document.getElementById('jitsi-room-input').value.trim();
+  if(v) abrirJitsi(slugify(v)||v);
+};
+window.copiarLink=function(){
+  if(!jitsiSala)return;
+  const link='https://meet.jit.si/'+jitsiSala;
+  navigator.clipboard.writeText(link).then(()=>toast('🔗 Link copiado!','success')).catch(()=>prompt('Copie o link:',link));
+};
+window.encerrarSala=function(){
+  if(jitsiAPI){try{jitsiAPI.dispose();}catch(e){}jitsiAPI=null;}
+  const c=document.getElementById('jitsi-container');
+  const p=document.getElementById('jitsi-placeholder');
+  c.innerHTML='';c.style.display='none';p.style.display='flex';
+  document.getElementById('btn-copiar').style.display='none';
+  document.getElementById('btn-encerrar').style.display='none';
+  jitsiSala=null;toast('📹 Videoconferência encerrada.','info');
+};
+
+window.selecionarCandEntrevista=function(){
+  const id=document.getElementById('sel-cand-entrevista').value;
+  candEntrevistaId=id||null;
+  const c=CANDIDATOS.find(x=>x.id===id);
+  const painel=document.getElementById('painel-cand-entrevista');
+  if(!c){painel.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted)"><div style="font-size:2rem;margin-bottom:8px">🎯</div><p style="font-size:.76rem">Selecione um candidato.</p></div>';return;}
+
+  const scoreHtml=c.score_total!=null?'<div style="margin-bottom:10px;padding:12px;border-radius:9px;background:'+(c.score_total>=65?'var(--success-l)':'var(--danger-l)')+';border:1px solid '+(c.score_total>=65?'rgba(5,150,105,.2)':'rgba(225,29,72,.15)')+'">'
+    +'<div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px">Score da Triagem</div>'
+    +'<div style="font-family:DM Serif Display,serif;font-size:1.8rem;color:'+(c.score_total>=65?'var(--success)':'var(--danger)')+'">'+c.score_total+'%</div>'
+    +'<div style="font-size:.65rem;color:var(--muted)">Game: '+(c.score_game||'—')+'% · Fit: '+(c.score_fit||'—')+'% · Mot: '+(c.score_motivacional||'—')+'%</div>'
+    +'</div>':'';
+
+  const motHtml=c.mot_1?'<div style="margin-top:8px;padding:10px 12px;background:var(--gray);border-radius:8px">'
+    +'<div style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px">Respostas Motivacionais</div>'
+    +'<div style="font-size:.72rem;color:var(--muted);line-height:1.6"><strong style="color:var(--dark)">Por que esta área?</strong><br>'+c.mot_1+'</div></div>':'';
+
+  painel.innerHTML='<div style="font-weight:700;font-size:.88rem;color:var(--dark);margin-bottom:4px">'+c.nome+'</div>'
+    +'<div style="font-size:.72rem;color:var(--muted);margin-bottom:10px">'+(c.vaga||'—')+' · '+(c.email||'')+'</div>'
+    +scoreHtml
+    +'<div style="font-size:.72rem;color:var(--muted);line-height:1.7;margin-bottom:6px">'+(c.resumo||'Sem resumo.')+'</div>'
+    +motHtml;
+
+  // Gera sala automática
+  const sala=gerarNomeSala(c.nome);
+  document.getElementById('jitsi-room-input').value=sala;
+  toast('👤 '+c.nome+' selecionado. Clique em ▶ Entrar para abrir a sala.','info');
+};
+
+window.registrarAprovado=async function(){
+  if(!candEntrevistaId){toast('⚠️ Selecione um candidato.','danger');return;}
+  const obs=document.getElementById('obs-entrevista').value;
+  await updateDoc(doc(db,'tiq_candidatos',candEntrevistaId),{status:'Pré-Selecionado',kanban:'Proposta',obsEntrevista:obs,entrevistadoEm:serverTimestamp()});
+  const c=CANDIDATOS.find(x=>x.id===candEntrevistaId);
+  toast('⭐ '+( c?.nome||'Candidato')+' pré-selecionado!','success');
+  adicionarAtividade((c?.nome||'Candidato')+' pré-selecionado na entrevista','var(--success)');
+  document.getElementById('obs-entrevista').value='';
+};
+window.registrarReprovado=async function(){
+  if(!candEntrevistaId){toast('⚠️ Selecione um candidato.','danger');return;}
+  const obs=document.getElementById('obs-entrevista').value;
+  await updateDoc(doc(db,'tiq_candidatos',candEntrevistaId),{status:'Reprovado',kanban:'Triagem',obsEntrevista:obs,entrevistadoEm:serverTimestamp()});
+  const c=CANDIDATOS.find(x=>x.id===candEntrevistaId);
+  toast('❌ '+( c?.nome||'Candidato')+' reprovado.','info');
+  document.getElementById('obs-entrevista').value='';
+};
+window.salvarMoverKanban=async function(){
+  if(!candEntrevistaId){toast('⚠️ Selecione um candidato.','danger');return;}
+  const col=document.getElementById('sel-mover-kanban').value;
+  if(!col)return;
+  await updateDoc(doc(db,'tiq_candidatos',candEntrevistaId),{kanban:col});
+  toast('📌 Movido para '+col,'success');
+};
+
 // ══ SIDEBAR TOGGLE ══
 window.toggleSidebar = function() {
   const sb=document.getElementById('sidebar');
-  sb.classList.toggle('collapsed');
+  const collapsed = sb.classList.toggle('collapsed');
+  const icon = document.getElementById('sb-toggle-icon');
+  if(icon) icon.innerHTML = collapsed
+    ? '<path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"/>'
+    : '<path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"/>';
   setTimeout(()=>{if(charts.funil)charts.funil.resize();if(charts.area)charts.area.resize();},350);
 };
 
