@@ -1736,9 +1736,9 @@ function renderCardAtual(){
     +'</div>';
 
   rf.style.display='block';
-  rb.innerHTML='<button class="rating-btn nao-atende '+(ra==='nao'?'selected':'')+'" onclick="marcarNivel('nao')"><span class="rb-icon">❌</span>Não Atende</button>'
-    +'<button class="rating-btn parcial '+(ra==='parcial'?'selected':'')+'" onclick="marcarNivel('parcial')"><span class="rb-icon">⚠️</span>Atende Parcialmente</button>'
-    +'<button class="rating-btn pleno '+(ra==='pleno'?'selected':'')+'" onclick="marcarNivel('pleno')"><span class="rb-icon">✅</span>Atende Plenamente</button>';
+  rb.innerHTML='<button class="rating-btn nao-atende '+(ra==='nao'?'selected':'')+'" onclick="marcarNivel(&quot;nao&quot;)"><span class="rb-icon">❌</span>Não Atende</button>'
+    +'<button class="rating-btn parcial '+(ra==='parcial'?'selected':'')+'" onclick="marcarNivel(&quot;parcial&quot;)"><span class="rb-icon">⚠️</span>Atende Parcialmente</button>'
+    +'<button class="rating-btn pleno '+(ra==='pleno'?'selected':'')+'" onclick="marcarNivel(&quot;pleno&quot;)"><span class="rb-icon">✅</span>Atende Plenamente</button>';
 
   nf.style.display='flex';
   nf.innerHTML='<button class="btn-nav" onclick="irParaCard('+(cardAtual-1)+')" '+(isFirst?'disabled':'')+'>← Anterior</button>'
