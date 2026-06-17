@@ -914,7 +914,7 @@ footer{background:linear-gradient(160deg,#020d0d,var(--dark));padding:76px 40px 
 <!-- FIREBASE + JS -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, onSnapshot, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCV-hcwD_3nMe4woRGdJCeetzuebbRtz10",
@@ -931,7 +931,7 @@ window._db = db;
 window._fbReady = true;
 
 // ══ VAGAS EM TEMPO REAL ══
-const vagasQ = query(collection(db,'tiq_vagas'), where('status','==','aberta'), orderBy('criadoEm','desc'));
+const vagasQ = query(collection(db,'tiq_vagas'), where('status','==','aberta'));
 onSnapshot(vagasQ, snap => {
   const container = document.getElementById('vagas-container');
   if(!container) return;
@@ -1005,127 +1005,407 @@ const TESTES = {
   'Administrativo': {
     inbox: {
       tipo: 'inbox',
-      titulo: 'Simulador de Caixa de Entrada',
-      desc: 'São 9h da manhã. Você chegou ao trabalho e encontrou estes e-mails. Selecione a ação certa para cada um.',
+      titulo: 'Caixa de Entrada — 9h da manhã',
+      desc: 'Você chegou ao trabalho e encontrou estas mensagens. Para cada uma, escolha o que você faria primeiro.',
       emails: [
-        { id:'e1', from:'Diretoria', subject:'Relatório financeiro urgente — preciso até 14h', preview:'O conselho se reúne hoje às 15h e preciso dos números consolidados...', tempo:'08:47', prioridade:'urgent', acoes:['Responder que vou priorizar','Delegar para a equipe sem ler','Ignorar por enquanto','Ler e marcar como lida'], correta:0, peso:3 },
-        { id:'e2', from:'Fornecedor ABC', subject:'Proposta de renovação de contrato', preview:'Nossa proposta de renovação está disponível para análise...', tempo:'07:30', prioridade:'normal', acoes:['Responder imediatamente','Encaminhar ao gestor com resumo','Arquivar para depois da reunião de 14h','Ignorar'], correta:2, peso:2 },
-        { id:'e3', from:'Colega - TI', subject:'Sistema fora do ar desde 08h30', preview:'O sistema de RH está inacessível para toda a equipe...', tempo:'09:02', prioridade:'urgent', acoes:['Esperar resolver sozinho','Comunicar ao gestor e verificar impacto','Continuar trabalhando normalmente','Mandar para o suporte sem comunicar ninguém'], correta:1, peso:3 },
-        { id:'e4', from:'RH', subject:'Confraternização de fim de ano — confirmação', preview:'Por favor confirme sua presença até sexta-feira...', tempo:'06:15', prioridade:'normal', acoes:['Responder agora','Deixar para responder no final do dia','Ignorar','Encaminhar para colegas'], correta:1, peso:1 }
+        {
+          id:'e1',
+          from:'Diretoria',
+          subject:'Relatório financeiro — preciso até 14h de hoje',
+          preview:'O conselho se reúne às 15h e preciso dos números consolidados antes disso. Você pode me enviar?',
+          tempo:'08:47',
+          prioridade:'urgent',
+          acoes:[
+            'Respondo agora confirmando que vou priorizar e entrego até 13h30',
+            'Abro o e-mail, marco como lido e continuo minha rotina normal',
+            'Delego para um colega sem explicar o contexto',
+            'Deixo para responder depois do almoço'
+          ],
+          correta:0,
+          peso:3
+        },
+        {
+          id:'e2',
+          from:'Fornecedor ABC',
+          subject:'Proposta de renovação de contrato',
+          preview:'Segue nossa proposta atualizada para análise. Precisamos de uma resposta até o final da semana.',
+          tempo:'07:30',
+          prioridade:'normal',
+          acoes:[
+            'Respondo imediatamente concordando com tudo',
+            'Leio, resumo os pontos principais e encaminho ao gestor responsável',
+            'Arquivo para analisar depois do relatório da diretoria',
+            'Ignoro porque não é urgente'
+          ],
+          correta:2,
+          peso:2
+        },
+        {
+          id:'e3',
+          from:'Suporte TI',
+          subject:'Sistema de RH fora do ar desde 08h30',
+          preview:'O sistema está inacessível para toda a equipe. Estamos investigando. Previsão de retorno: 2 horas.',
+          tempo:'09:02',
+          prioridade:'urgent',
+          acoes:[
+            'Espero o sistema voltar e não faço nada',
+            'Aviso o gestor, mapeio quais tarefas dependem do sistema e reorganizo as prioridades do dia',
+            'Continuo trabalhando normalmente como se nada tivesse acontecido',
+            'Mando e-mail de reclamação para o TI'
+          ],
+          correta:1,
+          peso:3
+        },
+        {
+          id:'e4',
+          from:'RH',
+          subject:'Confraternização de fim de ano — confirme presença',
+          preview:'Por favor confirme sua presença até sexta-feira para organizarmos o buffet.',
+          tempo:'06:15',
+          prioridade:'normal',
+          acoes:[
+            'Respondo agora, antes de qualquer outra coisa',
+            'Deixo para responder no final do dia, depois das prioridades resolvidas',
+            'Ignoro o e-mail',
+            'Peço para um colega responder por mim'
+          ],
+          correta:1,
+          peso:1
+        }
       ]
     },
     dnd: {
       tipo: 'dnd',
-      titulo: 'Priorize sua Semana',
-      desc: 'Arraste as tarefas da esquerda para a ordem de prioridade correta (1 = mais urgente).',
-      itens: ['Relatório de prestação de contas (prazo: hoje 17h)', 'Reunião com fornecedor (agendada para amanhã)', 'Atualização de cadastros no sistema', 'E-mails de rotina não urgentes'],
+      titulo: 'Organize sua lista de tarefas do dia',
+      desc: 'Você tem quatro tarefas para hoje. Arraste para colocá-las na ordem em que você as executaria, da mais urgente para a menos urgente.',
+      itens: [
+        'Relatório financeiro para a diretoria — prazo: hoje 14h',
+        'Reunião com fornecedor — agendada para amanhã às 10h',
+        'Atualizar cadastros no sistema interno',
+        'Responder e-mails de rotina sem prazo definido'
+      ],
       ordemCorreta: [0,1,2,3],
-      dica: 'Use a Matriz Eisenhower: urgente+importante primeiro.'
+      dica: 'Pense: o que tem prazo hoje? O que bloqueia outros? O que pode esperar?'
     },
     recursos: {
       tipo: 'recursos',
-      titulo: 'Alocação de Tempo',
-      desc: 'Você tem 8 horas disponíveis hoje. Distribua seu tempo entre as atividades abaixo. Cada ponto = 1 hora.',
+      titulo: 'Como você divide seu dia de trabalho?',
+      desc: 'Você tem 8 horas disponíveis hoje. Distribua esse tempo entre as atividades abaixo. Cada ponto equivale a 1 hora.',
       total: 8,
       tarefas: [
-        { nome:'Relatório financeiro urgente', desc:'Prazo hoje — impacta diretoria', minimo:3, recomendado:4 },
-        { nome:'Atendimento a colegas', desc:'Dúvidas e suporte interno', minimo:1, recomendado:2 },
-        { nome:'E-mails e comunicações', desc:'Rotina administrativa', minimo:1, recomendado:2 },
-        { nome:'Planejamento da semana', desc:'Organizar próximos dias', minimo:0, recomendado:1 }
+        { nome:'Relatório financeiro urgente', desc:'Prazo hoje — a diretoria está aguardando', minimo:3, recomendado:4 },
+        { nome:'Atender dúvidas de colegas', desc:'Perguntas e pedidos de suporte interno', minimo:1, recomendado:2 },
+        { nome:'E-mails e tarefas de rotina', desc:'Atividades administrativas do dia a dia', minimo:1, recomendado:2 },
+        { nome:'Organizar o planejamento da semana', desc:'Revisar o que está pendente e priorizar', minimo:0, recomendado:1 }
       ]
     }
   },
+
   'Logística': {
     inbox: {
       tipo: 'inbox',
-      titulo: 'Central de Operações',
-      desc: 'São 07h. Você é o coordenador do turno. Estas mensagens chegaram. Decida a ação de cada uma.',
+      titulo: 'Central de Operações — início do turno',
+      desc: 'São 07h. Você assumiu a coordenação do turno. Estas mensagens chegaram. O que você faz com cada uma?',
       emails: [
-        { id:'l1', from:'Motorista - Rota 3', subject:'Pneu furado na BR-040, carregado', preview:'Estou parado no km 234 com carga urgente para entrega até 10h...', tempo:'06:45', prioridade:'urgent', acoes:['Ligar imediatamente e acionar suporte técnico','Esperar o motorista resolver','Cancelar a entrega','Mandar outro motorista sem avisar o cliente'], correta:0, peso:3 },
-        { id:'l2', from:'Cliente Grandes Redes', subject:'Pedido de entrega adicional para amanhã', preview:'Precisamos de mais 50 caixas do produto X para amanhã às 8h...', tempo:'06:30', prioridade:'high', acoes:['Confirmar sem verificar estoque','Verificar estoque e capacidade, depois responder','Ignorar até ter certeza','Rejeitar automaticamente'], correta:1, peso:3 },
-        { id:'l3', from:'Armazém Central', subject:'Discrepância de inventário — 30 unidades', preview:'O sistema aponta 30 unidades a mais do que o físico...', tempo:'06:00', prioridade:'high', acoes:['Ignorar, pode ser erro do sistema','Fazer recontagem e registrar ocorrência','Atualizar o sistema sem recontar','Culpar a equipe do turno anterior'], correta:1, peso:2 }
+        {
+          id:'l1',
+          from:'Motorista — Rota 3',
+          subject:'Pneu furado na estrada, carga a bordo',
+          preview:'Estou parado no km 234 com carga para entrega às 10h. Pneu traseiro furado. O que faço?',
+          tempo:'06:45',
+          prioridade:'urgent',
+          acoes:[
+            'Ligo imediatamente para o motorista, aciono o suporte de manutenção e aviso o cliente sobre o possível atraso',
+            'Espero o motorista resolver sozinho',
+            'Cancelo a entrega sem avisar o cliente',
+            'Mando outro motorista sem comunicar nada ao primeiro'
+          ],
+          correta:0,
+          peso:3
+        },
+        {
+          id:'l2',
+          from:'Cliente — Redes Grandes',
+          subject:'Pedido extra para entrega amanhã cedo',
+          preview:'Precisamos de mais 50 caixas do produto X entregues amanhã às 8h. Vocês conseguem?',
+          tempo:'06:30',
+          prioridade:'high',
+          acoes:[
+            'Confirmo a entrega imediatamente sem verificar nada',
+            'Verifico o estoque disponível e a capacidade de rota antes de confirmar',
+            'Ignoro até ter certeza absoluta',
+            'Respondo que não é possível sem nem verificar'
+          ],
+          correta:1,
+          peso:3
+        },
+        {
+          id:'l3',
+          from:'Armazém Central',
+          subject:'Contagem de estoque com diferença de 30 unidades',
+          preview:'O sistema mostra 30 unidades a mais do que encontramos no físico. Não sabemos o motivo.',
+          tempo:'06:00',
+          prioridade:'high',
+          acoes:[
+            'Ignoro — provavelmente é erro do sistema',
+            'Peço para refazer a contagem, registro a ocorrência e investigo a causa',
+            'Ajusto o sistema para bater com o físico sem investigar',
+            'Culpo a equipe do turno anterior e sigo em frente'
+          ],
+          correta:1,
+          peso:2
+        }
       ]
     },
     chain: {
       tipo: 'chain',
-      titulo: 'Decisão em Cadeia — Crise de Entrega',
+      titulo: 'Crise de Entrega — Decisões em Sequência',
       cenarios: [
-        { contexto:'Uma carga refrigerada perdeu temperatura durante o transporte. O motorista ligou avisando. A entrega é para daqui a 2 horas.', pergunta:'Sua primeira ação é:', opcoes:['Avisar o cliente imediatamente e propor solução','Tentar recongelar a carga e entregar assim mesmo','Cancelar sem avisar','Esperar ordens do gestor'], correta:0, consequencia:'Comunicar o cliente mantém a confiança. Agora você precisa decidir o que propor.' },
-        { contexto:'O cliente foi avisado. Ele quer saber: posso receber parcial agora e o restante amanhã?', pergunta:'Você:', opcoes:['Confirma sem consultar estoque','Consulta disponibilidade e logística antes de confirmar','Diz que não é possível sem verificar','Transfere a ligação para outro departamento'], correta:1, consequencia:'Correto — comprometer sem verificar gera mais problemas. Você checou e há estoque para entrega parcial.' },
-        { contexto:'A entrega parcial foi confirmada. O motorista diz que o caminhão tem espaço só para 60% do pedido.', pergunta:'O que fazer com os 40% restantes?', opcoes:['Deixar para amanhã sem formalizar','Acionar segundo veículo e documentar o ocorrido','Cancelar o restante sem avisar','Pedir ao cliente que busque'], correta:1, consequencia:'Acionar backup e documentar é a resposta operacional correta.' }
+        {
+          contexto: 'Uma carga refrigerada perdeu temperatura durante o transporte. O motorista te ligou avisando. A entrega está programada para daqui a 2 horas e o produto pode estar comprometido.',
+          pergunta: 'Qual é a sua primeira ação?',
+          opcoes: [
+            'Aviso o cliente imediatamente e proponho uma solução alternativa',
+            'Peço ao motorista para entregar assim mesmo e ver o que acontece',
+            'Cancelo a entrega sem falar com ninguém',
+            'Espero ordens do meu gestor antes de fazer qualquer coisa'
+          ],
+          correta: 0,
+          consequencia: 'Comunicar o cliente primeiro mantém a confiança mesmo quando algo dá errado. Agora você precisa propor uma solução concreta.'
+        },
+        {
+          contexto: 'O cliente foi avisado e está tranquilo. Ele pergunta: posso receber uma parte da carga agora e o restante amanhã cedo?',
+          pergunta: 'O que você responde?',
+          opcoes: [
+            'Confirmo na hora sem verificar se temos estoque e capacidade de rota',
+            'Verifico o estoque disponível e a logística de amanhã antes de confirmar qualquer coisa',
+            'Digo que não é possível sem nem checar',
+            'Passo o cliente para outro departamento resolver'
+          ],
+          correta: 1,
+          consequencia: 'Confirmar sem verificar gera um problema maior. Você checou e há estoque para entrega parcial hoje — ótimo.'
+        },
+        {
+          contexto: 'A entrega parcial foi confirmada com o cliente. Mas o motorista avisa que o caminhão só comporta 60% do pedido original.',
+          pergunta: 'O que você faz com os 40% restantes?',
+          opcoes: [
+            'Deixa para amanhã sem registrar nada formalmente',
+            'Aciona um segundo veículo, documenta a ocorrência e confirma o horário com o cliente',
+            'Cancela o restante sem informar o cliente',
+            'Pede ao cliente que vá buscar no armazém'
+          ],
+          correta: 1,
+          consequencia: 'Acionar um backup e documentar tudo é a resposta operacional correta. O cliente fica satisfeito e a operação fica registrada.'
+        }
       ]
     },
     dnd: {
       tipo: 'dnd',
-      titulo: 'Monte a Rota Otimizada',
-      desc: 'Ordene as entregas por menor distância total e janela de horário (mais restrito primeiro).',
-      itens: ['Cliente A — Zona Norte, janela 8h-10h, 12km', 'Cliente B — Centro, janela 10h-12h, 8km', 'Cliente C — Zona Sul, janela 13h-15h, 22km', 'Cliente D — Zona Oeste, janela 11h-13h, 15km'],
+      titulo: 'Monte a ordem das entregas do dia',
+      desc: 'Você tem 4 clientes para entregar hoje. Arraste para definir a ordem, considerando a janela de horário de cada um e a distância.',
+      itens: [
+        'Cliente A — Zona Norte — janela até 10h — 12 km do depósito',
+        'Cliente B — Centro — janela até 12h — 8 km do depósito',
+        'Cliente C — Zona Sul — janela até 15h — 22 km do depósito',
+        'Cliente D — Zona Oeste — janela até 13h — 15 km do depósito'
+      ],
       ordemCorreta: [0,1,3,2],
-      dica: 'Priorize janelas mais restritas. A rotas devem minimizar distância total percorrida.'
+      dica: 'Entregue primeiro quem tem janela mais restrita. Depois otimize pela distância.'
     }
   },
+
   'Operacional': {
     inbox: {
       tipo: 'inbox',
-      titulo: 'Linha de Produção — Início de Turno',
-      desc: 'Você assumiu o turno. Estes comunicados estão no quadro. Defina a prioridade de ação.',
+      titulo: 'Quadro de avisos — início do turno',
+      desc: 'Você assumiu o turno e encontrou estes comunicados no quadro da área. O que você faz com cada um?',
       emails: [
-        { id:'o1', from:'Manutenção', subject:'Máquina B com ruído anormal desde ontem', preview:'A máquina B da linha 2 está apresentando vibração fora do padrão...', tempo:'06:00', prioridade:'urgent', acoes:['Parar a máquina e acionar manutenção','Continuar operando e monitorar','Ignorar — pode ser normal','Aumentar velocidade para compensar o tempo perdido'], correta:0, peso:3 },
-        { id:'o2', from:'Qualidade', subject:'Lote 442 com desvio de especificação', preview:'3 amostras do lote 442 apresentaram medidas fora do tolerado...', tempo:'05:45', prioridade:'urgent', acoes:['Segregar o lote e acionar qualidade','Continuar produzindo','Descartar sem registrar','Corrigir e re-misturar sem documentar'], correta:0, peso:3 },
-        { id:'o3', from:'Supervisor', subject:'Meta do turno: +15% vs ontem', preview:'Precisamos compensar a produção perdida no turno anterior...', tempo:'06:50', prioridade:'high', acoes:['Aumentar ritmo ignorando os outros problemas','Comunicar que há pendências de segurança que impedem aumento imediato','Concordar sem analisar a situação','Pedir aumento de equipe sem justificar'], correta:1, peso:2 }
+        {
+          id:'o1',
+          from:'Manutenção',
+          subject:'Máquina B com vibração fora do padrão desde ontem',
+          preview:'A máquina B da linha 2 está vibrando de forma diferente do normal. Ainda não foi investigado.',
+          tempo:'06:00',
+          prioridade:'urgent',
+          acoes:[
+            'Paro a máquina imediatamente e aciono a manutenção antes de continuar operando',
+            'Continuo usando a máquina e fico de olho para ver se piora',
+            'Ignoro — provavelmente é algo passageiro',
+            'Aumento a velocidade da máquina para compensar o tempo que vou perder'
+          ],
+          correta:0,
+          peso:3
+        },
+        {
+          id:'o2',
+          from:'Qualidade',
+          subject:'3 amostras do lote 442 fora da especificação',
+          preview:'As amostras coletadas ontem apresentaram medidas fora do tolerado. O lote ainda está na linha.',
+          tempo:'05:45',
+          prioridade:'urgent',
+          acoes:[
+            'Separo o lote, coloco uma identificação de bloqueio e aciono o responsável pela qualidade',
+            'Continuo produzindo normalmente e aviso no final do turno',
+            'Descarto as peças com problema sem registrar nada',
+            'Misturo de volta com o restante da produção'
+          ],
+          correta:0,
+          peso:3
+        },
+        {
+          id:'o3',
+          from:'Supervisor',
+          subject:'Meta do turno: aumentar produção em 15%',
+          preview:'Precisamos compensar o que perdemos no turno anterior. Vamos precisar de esforço adicional.',
+          tempo:'06:50',
+          prioridade:'high',
+          acoes:[
+            'Aceito a meta e aumento o ritmo sem considerar os problemas de máquina e qualidade pendentes',
+            'Informo ao supervisor que há pendências de segurança e qualidade que precisam ser resolvidas antes de aumentar o ritmo',
+            'Concordo sem questionar e vejo o que acontece',
+            'Peço mais gente na linha sem explicar por quê'
+          ],
+          correta:1,
+          peso:2
+        }
       ]
     },
     dnd: {
       tipo: 'dnd',
-      titulo: 'Sequência de Setup de Máquina',
-      desc: 'Ordene corretamente os passos para troca de produto na linha de produção.',
-      itens: ['Verificar e colocar EPIs adequados', 'Desligar e travar a máquina (LOTO)', 'Trocar componentes e ajustar parâmetros', 'Fazer teste com 5 peças e validar qualidade', 'Liberar máquina e registrar no diário de bordo'],
+      titulo: 'Qual é a ordem correta para trocar o produto na linha?',
+      desc: 'Para fazer a troca de produto na linha de produção com segurança, arraste os passos abaixo na sequência correta.',
+      itens: [
+        'Colocar os EPIs adequados para a atividade',
+        'Desligar e travar a máquina seguindo o procedimento de bloqueio (LOTO)',
+        'Trocar os componentes e ajustar os parâmetros do produto novo',
+        'Produzir 5 peças de teste e validar com o setor de qualidade',
+        'Liberar a máquina para produção e registrar a troca no diário de bordo'
+      ],
       ordemCorreta: [0,1,2,3,4],
-      dica: 'Segurança sempre primeiro. A sequência correta evita acidentes e retrabalho.'
+      dica: 'Segurança sempre antes de qualquer outra coisa. A sequência correta evita acidentes e retrabalho.'
     },
     recursos: {
       tipo: 'recursos',
-      titulo: 'Gestão do Turno de 8 Horas',
-      desc: 'Distribua o tempo do seu turno entre as atividades. Cada ponto = 30 minutos.',
+      titulo: 'Como você distribui seu turno de 8 horas?',
+      desc: 'Você tem um turno de 8 horas. Distribua o tempo entre as atividades abaixo. Cada ponto equivale a 30 minutos — total: 16 pontos.',
       total: 16,
       tarefas: [
-        { nome:'Produção principal', desc:'Meta do turno — não pode ser zero', minimo:10, recomendado:12 },
-        { nome:'Verificações de qualidade', desc:'Amostragem obrigatória a cada 2h', minimo:2, recomendado:2 },
-        { nome:'Limpeza e organização', desc:'5S — padrão da área', minimo:1, recomendado:2 },
-        { nome:'Registro e passagem de turno', desc:'Documentação obrigatória', minimo:1, recomendado:1 }
+        { nome:'Produção principal', desc:'A atividade principal do turno — não pode ser zero', minimo:10, recomendado:12 },
+        { nome:'Verificações de qualidade', desc:'Amostragem obrigatória a cada 2 horas', minimo:2, recomendado:2 },
+        { nome:'Limpeza e organização da área', desc:'Padrão 5S — obrigatório antes de encerrar', minimo:1, recomendado:2 },
+        { nome:'Registros e passagem de turno', desc:'Documentação obrigatória para o próximo turno', minimo:1, recomendado:1 }
       ]
     }
   },
+
   'Liderança': {
     chain: {
       tipo: 'chain',
-      titulo: 'Decisão em Cadeia — Gestão de Crise',
+      titulo: 'Situação Real de Liderança — Decida em Sequência',
       cenarios: [
-        { contexto:'Sua equipe está atrasada 3 dias em um projeto crítico. O cliente ligou e está insatisfeito. Dois colaboradores estão em conflito sobre responsabilidades.', pergunta:'Sua primeira ação como líder:', opcoes:['Reunir toda a equipe e cobrar resultado imediatamente','Ligar para o cliente, assumir a situação e informar o novo prazo realista','Culpar os dois colaboradores em conflito','Escalar para seu gestor sem agir'], correta:1, consequencia:'Gerenciar a expectativa do cliente é prioridade. Agora o cliente precisa de um prazo concreto.' },
-        { contexto:'O cliente quer que o projeto seja entregue em 2 dias. Sua equipe realista diz 4 dias.', pergunta:'Como você resolve?', opcoes:['Promete 2 dias sem consultar a equipe','Negocia 3 dias com o cliente e define prioridades com a equipe','Diz ao cliente que é impossível e encerra','Faz você mesmo para cumprir o prazo'], correta:1, consequencia:'Negociar com base na realidade protege a equipe e a credibilidade. Agora o conflito interno.' },
-        { contexto:'Os dois colaboradores em conflito continuam sem se falar. O prazo é amanhã.', pergunta:'O que você faz?', opcoes:['Ignora — o prazo é mais importante','Conversa separadamente com cada um, depois facilita um acordo com foco na entrega','Escolhe um lado e determina quem faz o quê','Ameaça os dois com consequências'], correta:1, consequencia:'Liderança de crise exige presença, não punição. Separar os egos do objetivo funciona.' }
+        {
+          contexto: 'Seu time está 3 dias atrasado em um projeto importante. O cliente já ligou insatisfeito. Além disso, dois membros da equipe estão em conflito aberto e mal se falam.',
+          pergunta: 'O que você faz primeiro?',
+          opcoes: [
+            'Reúne o time todo e cobra resultado na frente de todos',
+            'Liga para o cliente, assume a situação e informa um prazo realista e confiável',
+            'Chama os dois em conflito para uma bronca imediata',
+            'Escala tudo para o seu gestor e espera orientação'
+          ],
+          correta: 1,
+          consequencia: 'Gerenciar a expectativa do cliente é a prioridade. Um prazo honesto vale mais do que uma desculpa. Agora o cliente quer saber quando vai receber.'
+        },
+        {
+          contexto: 'O cliente quer o projeto em 2 dias. Sua equipe, de forma realista, precisa de 4 dias para fazer bem feito.',
+          pergunta: 'O que você faz?',
+          opcoes: [
+            'Promete 2 dias sem consultar o time — afinal você é o líder',
+            'Negocia 3 dias com o cliente, define prioridades claras com a equipe e remove os obstáculos',
+            'Diz ao cliente que é impossível e encerra a conversa',
+            'Assume você mesmo a entrega para não depender do time'
+          ],
+          correta: 1,
+          consequencia: 'Negociar com base na realidade protege o time e mantém a credibilidade com o cliente. Agora o conflito interno precisa ser resolvido.'
+        },
+        {
+          contexto: 'Os dois colaboradores em conflito ainda não se falam. O prazo combinado é amanhã e a entrega depende dos dois trabalhando juntos.',
+          pergunta: 'O que você faz?',
+          opcoes: [
+            'Ignora o conflito — o prazo é mais importante agora',
+            'Conversa separadamente com cada um, depois facilita um alinhamento direto com foco no que precisa ser entregue',
+            'Escolhe o lado de um deles e determina quem faz o quê',
+            'Ameaça os dois com consequências se não resolverem sozinhos'
+          ],
+          correta: 1,
+          consequencia: 'Em situações de crise, o líder precisa estar presente. Separar os egos do objetivo funciona melhor do que punição ou omissão.'
+        }
       ]
     },
     inbox: {
       tipo: 'inbox',
-      titulo: 'Gestão das Demandas — Segunda-feira 9h',
-      desc: 'Você é o gestor. Chegaram estas mensagens. Defina como agir em cada uma.',
+      titulo: 'Segunda-feira, 9h — O que você faz primeiro?',
+      desc: 'Você é gestor e chegou ao trabalho. Essas três situações estão te esperando. Como você age em cada uma?',
       emails: [
-        { id:'li1', from:'Colaborador Pedro', subject:'Quero pedir demissão', preview:'Estou desmotivado há meses e não vejo futuro aqui...', tempo:'08:30', prioridade:'urgent', acoes:['Encaminhar ao RH imediatamente','Marcar uma conversa 1:1 urgente para hoje','Ignorar — pode ser emocional','Ameaçar com consequências'], correta:1, peso:3 },
-        { id:'li2', from:'Gerência', subject:'Reunião de resultados avançada para hoje 14h', preview:'Preciso dos dados de performance da sua equipe até 13h...', tempo:'08:45', prioridade:'urgent', acoes:['Responder que não é possível','Organizar os dados e confirmar presença','Delegar para um colaborador sem briefing','Pedir mais prazo sem oferecer alternativa'], correta:1, peso:2 },
-        { id:'li3', from:'Ana - Time Design', subject:'Bloqueio técnico — preciso de decisão', preview:'Estamos parados esperando aprovação do orçamento extra de R$800...', tempo:'09:00', prioridade:'high', acoes:['Aprovar sem analisar','Analisar o impacto, decidir e comunicar em até 2h','Ignorar até a reunião de 14h','Pedir para Ana resolver sozinha'], correta:1, peso:2 }
+        {
+          id:'li1',
+          from:'Pedro — sua equipe',
+          subject:'Preciso conversar — estou pensando em sair',
+          preview:'Estou desmotivado faz algum tempo e não consigo ver meu desenvolvimento aqui. Quero conversar.',
+          tempo:'08:30',
+          prioridade:'urgent',
+          acoes:[
+            'Encaminho direto para o RH tratar',
+            'Respondo que vou separar um horário hoje mesmo para uma conversa individual',
+            'Ignoro por enquanto — pode ser só um momento de estresse',
+            'Mando uma mensagem dizendo para ele "segurar a onda"'
+          ],
+          correta:1,
+          peso:3
+        },
+        {
+          id:'li2',
+          from:'Gerência',
+          subject:'Reunião de resultados antecipada para hoje às 14h',
+          preview:'Preciso dos dados de performance da sua equipe consolidados até 13h. É possível?',
+          tempo:'08:45',
+          prioridade:'urgent',
+          acoes:[
+            'Respondo que não tenho como e pronto',
+            'Confirmo presença, organizo os dados disponíveis e aviso caso precise de alguma informação extra',
+            'Delego para um colaborador sem explicar o que é nem por quê',
+            'Peço mais prazo sem oferecer nenhuma alternativa'
+          ],
+          correta:1,
+          peso:2
+        },
+        {
+          id:'li3',
+          from:'Ana — Time de Design',
+          subject:'Precisamos de uma aprovação — estamos parados',
+          preview:'O time está bloqueado esperando sua aprovação em um custo extra de R$800. É urgente para não perdermos o prazo.',
+          tempo:'09:00',
+          prioridade:'high',
+          acoes:[
+            'Aprovo sem nem olhar — confiança no time',
+            'Analiso rapidamente o impacto, decido e comunico em até 2 horas',
+            'Deixo para resolver depois da reunião da tarde',
+            'Peço para Ana resolver sozinha de algum jeito'
+          ],
+          correta:1,
+          peso:2
+        }
       ]
     },
     recursos: {
       tipo: 'recursos',
-      titulo: 'Delegação Estratégica',
-      desc: 'Você tem 5 projetos importantes esta semana. Distribua pontos de atenção (0-5 por projeto). Total: 10 pontos.',
+      titulo: 'Como você distribui sua atenção esta semana?',
+      desc: 'Você tem 5 dias e 4 frentes importantes. Distribua seus pontos de dedicação — cada ponto equivale a meio dia. Total: 10 pontos.',
       total: 10,
       tarefas: [
-        { nome:'Projeto Cliente VIP — entrega sexta', desc:'Mais importante da semana', minimo:3, recomendado:4 },
-        { nome:'Desenvolvimento da equipe', desc:'1:1s e feedbacks', minimo:2, recomendado:3 },
-        { nome:'Processo de seleção em andamento', desc:'2 vagas em aberto', minimo:1, recomendado:2 },
-        { nome:'Relatório de resultados mensais', desc:'Prazo: próxima segunda', minimo:1, recomendado:2 }
+        { nome:'Projeto do cliente VIP — entrega na sexta', desc:'A entrega mais importante da semana', minimo:3, recomendado:4 },
+        { nome:'Desenvolvimento da equipe', desc:'1:1s, feedbacks e acompanhamento individual', minimo:2, recomendado:3 },
+        { nome:'Processo seletivo em andamento', desc:'Duas vagas abertas aguardando sua participação', minimo:1, recomendado:2 },
+        { nome:'Relatório de resultados mensais', desc:'Prazo: próxima segunda-feira', minimo:1, recomendado:2 }
       ]
     }
   }
@@ -1135,43 +1415,133 @@ const TESTES = {
 const TESTES_GERAL = {
   inbox: {
     tipo: 'inbox',
-    titulo: 'Gestão da Caixa de Entrada',
-    desc: 'São 9h. Você encontrou estes e-mails ao chegar. Selecione a melhor ação para cada um.',
+    titulo: 'Sua caixa de entrada — o que você faz primeiro?',
+    desc: 'São 9h. Você abriu o computador e encontrou estas mensagens. Decida o que fazer com cada uma.',
     emails: [
-      { id:'g1', from:'Gestor', subject:'Preciso da sua análise até 11h', preview:'Precisamos revisar os dados antes da reunião...', tempo:'08:30', prioridade:'urgent', acoes:['Responder e priorizar imediatamente','Delegar sem ler','Ignorar','Responder que não é possível'], correta:0, peso:3 },
-      { id:'g2', from:'Colega', subject:'Almoço hoje?', preview:'Vai ter um almoço de confraternização...', tempo:'08:00', prioridade:'normal', acoes:['Responder agora imediatamente','Deixar para responder no intervalo','Ignorar','Encaminhar para outros'], correta:1, peso:1 },
-      { id:'g3', from:'Cliente', subject:'Problema urgente com pedido', preview:'Meu pedido está com status errado no sistema...', tempo:'09:05', prioridade:'urgent', acoes:['Verificar e responder em até 30 min','Ignorar até ter solução completa','Encaminhar sem contexto','Responder amanhã'], correta:0, peso:3 }
+      {
+        id:'g1',
+        from:'Seu gestor',
+        subject:'Preciso da sua análise até 11h de hoje',
+        preview:'Tenho uma reunião às 11h30 e preciso dos dados que você levantou essa semana antes disso.',
+        tempo:'08:30',
+        prioridade:'urgent',
+        acoes:[
+          'Respondo confirmando que vou priorizar e entrego até 11h',
+          'Abro o e-mail e deixo para responder depois',
+          'Delego para um colega sem explicar nada',
+          'Respondo que não vou conseguir sem nem tentar organizar'
+        ],
+        correta:0,
+        peso:3
+      },
+      {
+        id:'g2',
+        from:'Colega de trabalho',
+        subject:'Almoço hoje com o time?',
+        preview:'Estamos combinando um almoço rápido hoje ao meio-dia. Você vai?',
+        tempo:'08:00',
+        prioridade:'normal',
+        acoes:[
+          'Respondo imediatamente antes de qualquer outra coisa',
+          'Deixo para responder no horário do almoço ou quando terminar as prioridades',
+          'Ignoro completamente',
+          'Peço para outra pessoa responder por mim'
+        ],
+        correta:1,
+        peso:1
+      },
+      {
+        id:'g3',
+        from:'Cliente',
+        subject:'Problema com meu pedido — preciso de ajuda',
+        preview:'Meu pedido está com status incorreto no sistema desde ontem e não consegui resolver pelo suporte.',
+        tempo:'09:05',
+        prioridade:'urgent',
+        acoes:[
+          'Verifico a situação do pedido e respondo com uma solução ou prazo em até 30 minutos',
+          'Aguardo ter a solução completa antes de responder qualquer coisa',
+          'Encaminho para outro setor sem explicar o contexto para o cliente',
+          'Respondo que vou olhar amanhã'
+        ],
+        correta:0,
+        peso:3
+      }
     ]
   },
   dnd: {
     tipo: 'dnd',
-    titulo: 'Priorize suas Tarefas',
-    desc: 'Arraste as tarefas para a ordem correta de execução (mais urgente primeiro).',
-    itens: ['Demanda urgente com prazo hoje','Reunião agendada para amanhã','Tarefa importante sem prazo definido','E-mails de baixa prioridade'],
+    titulo: 'Organize sua lista de tarefas do dia',
+    desc: 'Você tem quatro tarefas para hoje. Arraste para colocá-las na ordem em que você as executaria, da mais urgente para a menos urgente.',
+    itens: [
+      'Demanda com prazo para hoje às 17h',
+      'Reunião agendada para amanhã que precisa de preparação',
+      'Tarefa importante mas sem prazo definido ainda',
+      'E-mails e recados de baixa prioridade'
+    ],
     ordemCorreta: [0,1,2,3],
-    dica: 'Urgente e importante sempre primeiro.'
+    dica: 'O que tem prazo hoje vem primeiro. Depois o que precisa de preparação antecipada.'
   },
   recursos: {
     tipo: 'recursos',
-    titulo: 'Distribua seu Tempo',
-    desc: 'Você tem 8 horas. Distribua entre as atividades (1 ponto = 1 hora).',
+    titulo: 'Como você divide suas 8 horas de trabalho?',
+    desc: 'Você tem um dia de trabalho com 4 tipos de atividade. Distribua seu tempo — cada ponto equivale a 1 hora.',
     total: 8,
     tarefas: [
-      { nome:'Tarefa prioritária do dia', desc:'O que mais gera resultado', minimo:3, recomendado:4 },
-      { nome:'Comunicação e e-mails', desc:'Manter todos informados', minimo:1, recomendado:2 },
-      { nome:'Tarefas secundárias', desc:'Importante mas não urgente', minimo:1, recomendado:2 },
-      { nome:'Planejamento', desc:'Organizar próximos passos', minimo:0, recomendado:1 }
+      { nome:'Tarefa principal do dia', desc:'A atividade que mais gera resultado hoje', minimo:3, recomendado:4 },
+      { nome:'Comunicação e alinhamentos', desc:'E-mails, mensagens e conversas rápidas', minimo:1, recomendado:2 },
+      { nome:'Tarefas secundárias', desc:'Importantes, mas sem prazo imediato', minimo:1, recomendado:2 },
+      { nome:'Planejamento e organização', desc:'Revisar o que está pendente e preparar o dia seguinte', minimo:0, recomendado:1 }
     ]
   }
 };
 
 // FIT CULTURAL
 const FIT = [
-  {t:'Seu prazo é amanhã. No final do expediente, parte do trabalho vai sair incompleta. O que você faz?',o:[{t:'Entrego o que está pronto e explico por e-mail.',v:1},{t:'Fico além do horário sem avisar ninguém.',v:0},{t:'Comunico ao gestor e apresento um plano para finalizar.',v:2},{t:'Peço ajuda a um colega para dividir o que falta.',v:2}]},
-  {t:'Você identifica um erro em um processo que não é de sua responsabilidade. Pode afetar outros departamentos.',o:[{t:'Ignoro — não é minha função.',v:0},{t:'Corrijo por conta própria sem avisar.',v:1},{t:'Comunico ao responsável e ofereço ajuda.',v:2},{t:'Registro e espero a reunião de equipe.',v:1}]},
-  {t:'Um processo que você executa há meses vai mudar completamente sem aviso prévio. Sua reação:',o:[{t:'Frustração — prefiro métodos estabelecidos.',v:0},{t:'Curiosidade — quero entender o motivo antes de agir.',v:2},{t:'Indiferença — basta executar.',v:1},{t:'Preocupação — questiono se foi bem planejado.',v:1}]},
-  {t:'Você comete um erro que atrasa o trabalho da equipe. O que faz?',o:[{t:'Espero alguém perceber.',v:0},{t:'Assumo imediatamente e proponho como resolver.',v:2},{t:'Resolvo sozinho sem comentar.',v:1},{t:'Explico o contexto antes de pedir desculpas.',v:1}]},
-  {t:'Você e um colega discordam sobre como executar uma tarefa com prazo curto.',o:[{t:'Cedo para evitar conflito.',v:0},{t:'Faço do meu jeito — tenho mais experiência.',v:1},{t:'Proponho discutir pros/contras e decidir juntos.',v:2},{t:'Escalo para o gestor decidir.',v:1}]}
+  {
+    t:'Seu prazo é amanhã, mas no final do expediente você percebe que não vai conseguir entregar tudo. O que você faz?',
+    o:[
+      {t:'Entrego o que está pronto e mando um e-mail explicando o que falta e quando vou finalizar.',v:2},
+      {t:'Fico além do horário sem avisar ninguém e entrego tudo de qualquer jeito.',v:0},
+      {t:'Aviso o gestor com antecedência, explico a situação e apresento um plano para terminar.',v:2},
+      {t:'Peço ajuda a um colega para dividir o que falta e entregar juntos.',v:1}
+    ]
+  },
+  {
+    t:'Você percebe um erro em um processo que não é da sua área, mas que pode afetar outros departamentos. O que você faz?',
+    o:[
+      {t:'Não faço nada — não é problema meu.',v:0},
+      {t:'Corrijo sozinho sem avisar ninguém.',v:1},
+      {t:'Aviso o responsável pelo processo e me ofereço para ajudar.',v:2},
+      {t:'Anoto e espero a próxima reunião de equipe para comentar.',v:1}
+    ]
+  },
+  {
+    t:'Um processo que você usa todo dia vai mudar completamente, sem aviso prévio. Como você reage?',
+    o:[
+      {t:'Fico frustrado — prefiro continuar fazendo do jeito que já funciona.',v:0},
+      {t:'Fico curioso e quero entender o motivo da mudança antes de opinar.',v:2},
+      {t:'Simplesmente sigo as novas instruções sem questionar.',v:1},
+      {t:'Questiono se a mudança foi bem planejada e levanto possíveis problemas.',v:1}
+    ]
+  },
+  {
+    t:'Você cometeu um erro que causou atraso no trabalho da equipe. O que você faz?',
+    o:[
+      {t:'Espero alguém perceber e ver o que acontece.',v:0},
+      {t:'Assumo o erro imediatamente, peço desculpas e proponho uma forma de corrigir.',v:2},
+      {t:'Resolvo por conta própria sem comentar com ninguém.',v:1},
+      {t:'Explico o contexto que levou ao erro antes de qualquer coisa.',v:1}
+    ]
+  },
+  {
+    t:'Você e um colega discordam sobre a melhor forma de executar uma tarefa que tem prazo curto. Como vocês resolvem?',
+    o:[
+      {t:'Cedo para o colega para evitar qualquer tipo de conflito.',v:0},
+      {t:'Faço do jeito que acho certo — tenho mais experiência.',v:1},
+      {t:'Proponho que a gente compare as duas opções rapidamente e decida juntos.',v:2},
+      {t:'Levo para o gestor decidir para não perder tempo discutindo.',v:1}
+    ]
+  }
 ];
 
 // ═══════════════════════════════════════════════════════
@@ -1593,29 +1963,29 @@ function renderFit(title,sub,body,mtfi,btnnx,scoreLive) {
   mtfi.textContent = `🧠 ${FIT.length} cenários · Responda como age de verdade`;
   btnnx.textContent = 'Continuar →';
 
-  body.innerHTML = `
-    <div class="game-header">
-      <div class="game-title">🧠 Fit Cultural & Valores</div>
-      <div class="game-desc">Leia cada cenário e escolha a resposta que mais representa como você realmente age — não existe resposta "errada" no sentido moral, mas sim padrões que se alinham melhor com ambientes de alto desempenho.</div>
-    </div>
-    ${FIT.map((q,i)=>`
-      <div style="margin-bottom:22px;padding:18px;background:${i%2===0?'var(--gray)':'white'};border-radius:12px;border:1.5px solid var(--bdr)">
-        <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px">
-          <div style="width:28px;height:28px;border-radius:7px;background:var(--teal);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:900;flex-shrink:0">${i+1}</div>
-          <div style="font-size:.84rem;font-weight:700;color:var(--dark);line-height:1.5;padding-top:3px">${q.t}</div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:7px;padding-left:38px">
-          ${q.o.map((op,oi)=>`
-            <div class="dnd-item ${resFit[i]===oi?'':''}${resFit[i]===oi?'" style="border-color:var(--teal);background:rgba(12,93,89,.06)':''"}"
-              style="cursor:pointer;${resFit[i]===oi?'border-color:var(--teal);background:rgba(12,93,89,.06);':''}padding:10px 12px;border-radius:9px;border:1.5px solid var(--bdr);display:flex;align-items:center;gap:8px;transition:.2s"
-              onclick="escolherFit(${i},${oi},${op.v},this)">
-              <div style="width:16px;height:16px;border-radius:50%;border:2px solid ${resFit[i]===oi?'var(--teal)':'var(--bdr)'};background:${resFit[i]===oi?'var(--teal)':'white'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                ${resFit[i]===oi?'<div style="width:5px;height:5px;border-radius:50%;background:white"></div>':''}
-              </div>
-              <span style="font-size:.75rem;color:var(--text);line-height:1.4">${op.t}</span>
-            </div>`).join('')}
-        </div>
-      </div>`).join('')}`;
+  const fitHtml = FIT.map((q,i)=>{
+    const bg = i%2===0 ? 'var(--gray)' : 'white';
+    const opcoesHtml = q.o.map((op,oi)=>{
+      const sel = resFit[i]===oi;
+      const borderC = sel ? 'var(--teal)' : 'var(--bdr)';
+      const bgC = sel ? 'rgba(12,93,89,.06)' : 'white';
+      const radioInner = sel ? '<div style="width:5px;height:5px;border-radius:50%;background:white"></div>' : '';
+      return '<div onclick="escolherFit('+i+','+oi+','+op.v+',this)" style="cursor:pointer;border:1.5px solid '+borderC+';background:'+bgC+';padding:10px 12px;border-radius:9px;display:flex;align-items:center;gap:8px;transition:.2s">'
+        +'<div style="width:16px;height:16px;border-radius:50%;border:2px solid '+borderC+';background:'+(sel?'var(--teal)':'white')+';display:flex;align-items:center;justify-content:center;flex-shrink:0">'+radioInner+'</div>'
+        +'<span style="font-size:.75rem;color:var(--text);line-height:1.4">'+op.t+'</span>'
+        +'</div>';
+    }).join('');
+    return '<div style="margin-bottom:22px;padding:18px;background:'+bg+';border-radius:12px;border:1.5px solid var(--bdr)">'
+      +'<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px">'
+      +'<div style="width:28px;height:28px;border-radius:7px;background:var(--teal);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:900;flex-shrink:0">'+(i+1)+'</div>'
+      +'<div style="font-size:.84rem;font-weight:700;color:var(--dark);line-height:1.5;padding-top:3px">'+q.t+'</div>'
+      +'</div>'
+      +'<div style="display:flex;flex-direction:column;gap:7px;padding-left:38px">'+opcoesHtml+'</div>'
+      +'</div>';
+  }).join('');
+  body.innerHTML = '<div class="game-header"><div class="game-title">🧠 Fit Cultural & Valores</div>'
+    +'<div class="game-desc">Leia cada cenário e escolha a resposta que mais representa como você realmente age.</div></div>'
+    + fitHtml;
 }
 
 window.escolherFit = function(qi,oi,v,el) {
