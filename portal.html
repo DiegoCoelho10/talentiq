@@ -343,6 +343,39 @@ body{font-family:'Montserrat',sans-serif;background:var(--gray);color:var(--text
 .rec-info small{font-size:.66rem;color:var(--muted);display:block}
 .rec-role{font-size:.6rem;font-weight:800;padding:2px 7px;border-radius:20px;background:rgba(12,93,89,.1);color:var(--teal)}
 
+/* SKILL ASSESSMENT */
+.skill-dot{width:22px;height:5px;border-radius:10px;background:var(--border);cursor:pointer;transition:.3s;display:inline-block}
+.skill-dot.current{background:var(--teal)}
+.skill-dot.done-pleno{background:var(--success)}
+.skill-dot.done-parcial{background:var(--warning)}
+.skill-dot.done-nao{background:var(--danger)}
+.skill-card{background:var(--white);border:2px solid var(--border);border-radius:12px;overflow:visible;transition:border-color .3s;margin-bottom:8px}
+.skill-card.rated-pleno{border-color:var(--success)}
+.skill-card.rated-parcial{border-color:var(--warning)}
+.skill-card.rated-nao{border-color:var(--danger)}
+.skill-card-top{padding:12px 14px;background:linear-gradient(135deg,#f0faf8,var(--gray));border-bottom:1px solid var(--border)}
+.skill-card-number{font-size:.58rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:3px}
+.skill-card-name{font-size:.92rem;font-weight:800;color:var(--teal);margin-bottom:3px}
+.skill-card-desc{font-size:.7rem;color:var(--muted);line-height:1.5}
+.skill-questions{padding:10px 14px;border-bottom:1px solid var(--border);background:#fafcfb}
+.skill-q-title{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);margin-bottom:7px}
+.skill-questions ul{list-style:none}
+.skill-questions ul li{font-size:.72rem;color:var(--dark);padding:4px 0;border-bottom:1px solid var(--border);line-height:1.5;display:flex;gap:7px}
+.skill-questions ul li:last-child{border-bottom:none}
+.skill-questions ul li::before{content:'→';color:var(--teal);font-weight:700;flex-shrink:0}
+.rating-btn{padding:8px 4px;border-radius:9px;border:2px solid var(--border);background:var(--white);font-family:inherit;font-size:.62rem;font-weight:800;cursor:pointer;transition:.2s;text-align:center;line-height:1.3}
+.rating-btn .rb-icon{font-size:1rem;display:block;margin-bottom:2px}
+.rating-btn:hover{transform:translateY(-1px)}
+.rating-btn.nao-atende:hover,.rating-btn.nao-atende.selected{background:var(--danger-l);border-color:var(--danger);color:var(--danger)}
+.rating-btn.parcial:hover,.rating-btn.parcial.selected{background:var(--warning-l);border-color:var(--warning);color:var(--warning)}
+.rating-btn.pleno:hover,.rating-btn.pleno.selected{background:var(--success-l);border-color:var(--success);color:var(--success)}
+.rating-btn.selected{transform:scale(1.02);box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.btn-nav{flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);font-family:inherit;font-size:.7rem;font-weight:800;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:5px}
+.btn-nav:hover{background:var(--gray)}
+.btn-nav.next{background:var(--teal);color:var(--gold);border-color:var(--teal)}
+.btn-nav.next:hover{background:var(--teal-d)}
+.btn-nav:disabled{opacity:.4;cursor:default;pointer-events:none}
+
 /* LOADING */
 .loading-row td{text-align:center;padding:36px;color:var(--muted)}
 .spin{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite}
@@ -564,75 +597,92 @@ body{font-family:'Montserrat',sans-serif;background:var(--gray);color:var(--text
   </div>
 
   <!-- ENTREVISTA -->
-  <div class="page" id="page-entrevista" style="padding:20px 24px;overflow:hidden">
-    <div style="display:grid;grid-template-columns:1fr 420px;gap:16px;height:calc(100vh - 130px)">
-      <!-- VIDEO -->
+  <div class="page" id="page-entrevista" style="padding:14px 18px;overflow:hidden">
+    <div style="display:grid;grid-template-columns:1fr 430px;gap:18px;height:calc(100vh - 110px)">
+      <!-- VIDEO PANEL -->
       <div style="background:var(--dark);border-radius:14px;overflow:hidden;display:flex;flex-direction:column">
         <div style="padding:12px 18px;background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
           <span style="color:var(--gold);font-size:.8rem;font-weight:800">🎥 Videoconferência — TALENTIQ</span>
-          <div style="display:flex;gap:8px;align-items:center">
-            <input type="text" id="jitsi-room-input" placeholder="nome-da-sala"
-              style="background:rgba(255,255,255,.1);border:1px solid rgba(201,167,125,.3);border-radius:7px;color:white;padding:5px 9px;font-family:inherit;font-size:.72rem;width:140px">
-            <button onclick="entrarSala()" style="padding:6px 12px;border-radius:7px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:white;font-family:inherit;font-size:.7rem;font-weight:700;cursor:pointer">▶ Entrar</button>
-            <button onclick="copiarLink()" id="btn-copiar" style="display:none;padding:6px 12px;border-radius:7px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:white;font-family:inherit;font-size:.7rem;font-weight:700;cursor:pointer">📋 Link</button>
-            <button onclick="encerrarSala()" id="btn-encerrar" style="display:none;padding:6px 12px;border-radius:7px;border:1px solid rgba(225,29,72,.3);background:rgba(225,29,72,.1);color:var(--danger);font-family:inherit;font-size:.7rem;font-weight:700;cursor:pointer">✕ Encerrar</button>
+          <div style="display:flex;gap:7px;align-items:center">
+            <div id="jitsi-room-wrap" style="display:none;align-items:center">
+              <input type="text" id="jitsi-room-input" placeholder="nome-da-sala" style="background:rgba(255,255,255,.1);border:1px solid rgba(201,167,125,.3);border-radius:7px;color:white;padding:5px 9px;font-family:inherit;font-size:.72rem;width:150px" onkeypress="if(event.key==='Enter')entrarSalaJitsi()">
+            </div>
+            <button onclick="entrarSalaJitsi()" id="btn-jitsi-entrar" style="display:none;padding:6px 13px;border-radius:7px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-family:inherit;font-size:.7rem;font-weight:700;cursor:pointer">▶ Entrar</button>
+            <button onclick="copiarLinkJitsi()" id="btn-jitsi-copiar" style="display:none;padding:6px 13px;border-radius:7px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:white;font-family:inherit;font-size:.7rem;font-weight:700;cursor:pointer">📋 Link</button>
+            <button onclick="encerrarSalaJitsi()" id="btn-jitsi-encerrar" style="display:none;padding:6px 13px;border-radius:7px;border:1px solid rgba(225,29,72,.3);background:rgba(225,29,72,.1);color:var(--danger);font-family:inherit;font-size:.7rem;font-weight:700;cursor:pointer">✕ Encerrar</button>
           </div>
         </div>
-        <div style="flex:1;position:relative" id="jitsi-wrap">
-          <div id="jitsi-placeholder" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,#041a19,#0a3530)">
+        <div style="flex:1;position:relative;overflow:hidden">
+          <div id="zoom-placeholder" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,#041a19,#0a3a36)">
             <div style="font-size:3rem;margin-bottom:14px;opacity:.5">📹</div>
             <h3 style="color:white;font-size:1rem;font-weight:700;margin-bottom:6px">Videoconferência</h3>
-            <p style="font-size:.76rem;color:rgba(255,255,255,.4);text-align:center;max-width:260px;line-height:1.6">Selecione um candidato ao lado ou crie uma sala manualmente</p>
-            <button onclick="criarSalaManual()" style="margin-top:16px;padding:11px 24px;background:linear-gradient(135deg,var(--teal),var(--teal-l));color:var(--gold);border:none;border-radius:9px;font-family:inherit;font-size:.8rem;font-weight:800;cursor:pointer">🎥 Criar Sala Agora</button>
+            <p style="font-size:.75rem;color:rgba(255,255,255,.4);text-align:center;max-width:280px;line-height:1.6">Selecione um candidato ao lado ou crie uma sala</p>
+            <button onclick="iniciarJitsiManual()" style="margin-top:18px;padding:11px 26px;background:linear-gradient(135deg,var(--teal),var(--teal-l));color:var(--gold);border:none;border-radius:9px;font-family:inherit;font-size:.82rem;font-weight:800;cursor:pointer">🎥 Criar Sala</button>
           </div>
           <div id="jitsi-container" style="display:none;width:100%;height:100%"></div>
         </div>
       </div>
-      <!-- PAINEL CANDIDATO -->
-      <div style="background:var(--white);border-radius:14px;border:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden">
-        <div style="padding:14px 18px;background:linear-gradient(135deg,var(--teal),var(--teal-l));flex-shrink:0">
-          <div style="color:var(--gold);font-size:.82rem;font-weight:800">🎯 Candidato em Entrevista</div>
-          <div style="color:rgba(255,255,255,.5);font-size:.65rem;margin-top:2px">Selecione para iniciar a entrevista</div>
+      <!-- ASSESSMENT PANEL -->
+      <div style="background:var(--white);border-radius:14px;border:1px solid var(--border);display:grid;grid-template-rows:auto auto 1fr auto auto auto;overflow:hidden">
+        <div style="padding:13px 16px;background:linear-gradient(135deg,var(--teal),var(--teal-l))">
+          <div style="color:var(--gold);font-size:.82rem;font-weight:800">🎯 Avaliação de Soft Skills</div>
+          <div style="color:rgba(255,255,255,.55);font-size:.66rem;margin-top:2px">Card a card · Resultado automático ≥70%</div>
         </div>
-        <div style="padding:12px 14px;background:var(--gray);border-bottom:1px solid var(--border);flex-shrink:0">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="padding:12px 14px;border-bottom:1px solid var(--border);background:var(--gray)">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
             <div>
-              <label style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);display:block;margin-bottom:4px">Candidato</label>
-              <select id="sel-cand-entrevista" onchange="selecionarCandEntrevista()" style="width:100%;padding:7px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:inherit;font-size:.75rem;background:white">
+              <label style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);display:block;margin-bottom:4px">Candidato</label>
+              <select id="sel-candidato" onchange="onCandidatoChange()" style="width:100%;padding:7px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:inherit;font-size:.75rem;background:white;cursor:pointer">
                 <option value="">— Selecione —</option>
               </select>
             </div>
             <div>
-              <label style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);display:block;margin-bottom:4px">Mover para</label>
-              <select id="sel-mover-kanban" style="width:100%;padding:7px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:inherit;font-size:.75rem;background:white">
-                <option value="">— Kanban —</option>
-                <option>Triagem</option><option>Entrevista</option><option>Avaliação</option><option>Proposta</option><option>Admitido</option>
+              <label style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);display:block;margin-bottom:4px">Vaga / Área</label>
+              <select id="sel-vaga" onchange="onVagaChange()" style="width:100%;padding:7px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:inherit;font-size:.75rem;background:white;cursor:pointer">
+                <option value="">— Selecione —</option>
+                <option value="Administrativo">Administrativo</option>
+                <option value="Logística">Logística</option>
+                <option value="Operacional">Operacional</option>
+                <option value="Liderança">Liderança</option>
+                <option value="Geral">Banco Geral</option>
               </select>
             </div>
           </div>
         </div>
-        <div style="flex:1;overflow-y:auto;padding:14px" id="painel-cand-entrevista">
-          <div style="text-align:center;padding:30px;color:var(--muted)">
-            <div style="font-size:2rem;margin-bottom:8px">🎯</div>
-            <p style="font-size:.76rem">Selecione um candidato para ver o perfil e iniciar a entrevista.</p>
+        <div id="skill-cards-area" style="overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;min-height:0">
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;padding:28px;color:var(--muted)">
+            <div style="font-size:2.2rem;margin-bottom:10px;opacity:.6">🎯</div>
+            <p style="font-size:.75rem;line-height:1.6">Selecione candidato e vaga para iniciar.</p>
           </div>
         </div>
-        <div style="padding:12px 14px;border-top:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;gap:8px">
-          <div>
-            <label style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);display:block;margin-bottom:4px">Observações da Entrevista</label>
-            <textarea id="obs-entrevista" placeholder="Impressões, pontos fortes, dúvidas..." style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:7px;font-family:inherit;font-size:.76rem;resize:none;height:60px;line-height:1.6;transition:.2s"></textarea>
+        <div id="skill-rating-fixed" style="display:none;flex-shrink:0;padding:9px 12px 0;border-top:2px solid var(--border);background:var(--white)">
+          <div style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px;text-align:center">Como o candidato atende esta competência?</div>
+          <div id="rating-buttons-fixed" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px"></div>
+        </div>
+        <div id="skill-nav-fixed" style="display:none;flex-shrink:0;display:none;gap:7px;padding:7px 12px 9px;background:var(--white)"></div>
+        <div id="resultado-auto" style="display:none;flex-direction:column;gap:9px;padding:12px;border-top:1px solid var(--border);overflow-y:auto">
+          <div id="resultado-box" style="border-radius:11px;padding:12px 14px;display:flex;align-items:center;gap:12px">
+            <div id="resultado-icon" style="font-size:1.8rem">—</div>
+            <div style="flex:1">
+              <div id="resultado-pct" style="font-size:1.5rem;font-weight:800;line-height:1">—%</div>
+              <div style="font-size:.68rem;font-weight:700;color:var(--muted);margin-top:2px">Score de compatibilidade</div>
+              <div id="resultado-status" style="font-size:.72rem;font-weight:800;margin-top:2px">—</div>
+            </div>
           </div>
-          <div style="display:flex;gap:7px">
-            <button onclick="registrarAprovado()" style="flex:1;padding:10px;border-radius:8px;background:var(--success);color:white;border:none;font-family:inherit;font-size:.76rem;font-weight:800;cursor:pointer">⭐ Pré-Selecionar</button>
-            <button onclick="registrarReprovado()" style="flex:1;padding:10px;border-radius:8px;background:var(--danger);color:white;border:none;font-family:inherit;font-size:.76rem;font-weight:800;cursor:pointer">❌ Reprovar</button>
-            <button onclick="salvarMoverKanban()" style="padding:10px 14px;border-radius:8px;background:var(--teal);color:var(--gold);border:none;font-family:inherit;font-size:.76rem;font-weight:800;cursor:pointer">📌</button>
+          <div>
+            <label style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);display:block;margin-bottom:4px">Observações</label>
+            <textarea id="obs-entrevista" placeholder="Impressões gerais..." style="width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:7px;font-family:inherit;font-size:.75rem;resize:none;height:55px;transition:.2s;line-height:1.6"></textarea>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button id="btn-registrar" onclick="registrarResultado()" style="flex:1;padding:11px;border-radius:9px;border:none;font-family:inherit;font-size:.78rem;font-weight:800;cursor:pointer;transition:.2s">Registrar</button>
+            <button onclick="imprimirRelatorio()" style="padding:10px 14px;border-radius:9px;border:1px solid var(--border);background:var(--white);font-family:inherit;font-size:.78rem;cursor:pointer" title="Imprimir">🖨️</button>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- BANCO -->
+<!-- BANCO -->
   <div class="page" id="page-banco">
     <div class="toolbar">
       <div class="search-box"><svg class="search-icon" viewBox="0 0 24 24"><path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"/></svg><input type="text" id="banco-search" placeholder="Buscar candidato..." oninput="filtrarBanco()"></div>
@@ -1361,12 +1411,7 @@ function renderEventosLista() {
   el.innerHTML=evs.map(e=>'<div style="padding:9px 11px;border-radius:9px;background:var(--gray);margin-bottom:7px;border-left:3px solid '+(e.tipo==='feedback'?'var(--gold)':'var(--teal)')+'"><div style="font-size:.76rem;font-weight:700">'+e.titulo+'</div><div style="font-size:.66rem;color:var(--muted);margin-top:2px">'+new Date(e.data?.toDate?.()??e.data).toLocaleString('pt-BR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})+' · '+e.tipo+'</div>'+(e.candidatoNome?'<div style="font-size:.66rem;color:var(--muted)">👤 '+e.candidatoNome+'</div>':'')+'<div style="margin-top:5px"><button class="btn-sm red" style="font-size:.6rem;padding:3px 8px" onclick="excluirEvento(\''+e.id+'\')">🗑️</button></div></div>').join('');
 }
 
-function popularSelectCandidatos() {
-  const val2=sel2.value;
-  sel2.innerHTML='<option value="">— Selecione —</option>';
-  CANDIDATOS.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.nome+' · '+(c.vaga||'—');sel2.appendChild(o);});
-  if(val2)sel2.value=val2;
-}
+
 
 window.salvarEvento = async function() {
   const titulo=document.getElementById('ev-titulo').value.trim();
@@ -1540,6 +1585,256 @@ function renderConfigStats() {
   el.innerHTML=stats.map(([l,v])=>'<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 11px;background:var(--gray);border-radius:8px;margin-bottom:8px"><span style="font-size:.73rem;color:var(--muted);font-weight:600">'+l+'</span><span style="font-size:.86rem;font-weight:800;color:var(--teal)">'+v+'</span></div>').join('');
 }
 
+// ══ SOFT SKILLS DATA ══
+const SS = {
+"Administrativo":[
+{nome:"Comunicação Escrita",desc:"Clareza e objetividade em textos e e-mails",perguntas:["Como organiza um e-mail importante antes de enviar?","Já precisou comunicar algo complexo por escrito? Como fez?","Como garante que sua mensagem foi compreendida?"]},
+{nome:"Organização",desc:"Gestão eficiente de tarefas e prioridades",perguntas:["Como organiza tarefas quando tem muitas demandas?","Qual método usa para não perder prazos?","Descreva uma situação em que sua organização foi essencial."]},
+{nome:"Proatividade",desc:"Antecipação de demandas sem ser solicitado",perguntas:["Conte um exemplo em que identificou um problema antes que surgisse.","Como lida com períodos de baixa demanda?","Já sugeriu melhoria de processo? O que aconteceu?"]},
+{nome:"Atenção ao Detalhe",desc:"Precisão na execução e conferência",perguntas:["Como revisa seu trabalho antes de entregar?","Já pegou um erro importante? Como foi?","Em atividades repetitivas, como mantém a atenção?"]},
+{nome:"Trabalho em Equipe",desc:"Colaboração e integração com diferentes áreas",perguntas:["Como age quando discorda de uma decisão do grupo?","Fale sobre um projeto em equipe que deu certo. Qual foi seu papel?","Como lida com colegas de perfil muito diferente?"]},
+{nome:"Adaptabilidade",desc:"Flexibilidade diante de mudanças",perguntas:["Conte sobre uma mudança de processo que te pegou de surpresa.","Já precisou aprender ferramenta nova com pouco tempo?","O que faz quando um plano não funciona?"]},
+{nome:"Gestão do Tempo",desc:"Cumprimento de prazos e priorização",perguntas:["Como define o que é urgente e o que é importante?","Já perdeu um prazo importante? O que aprendeu?","Como age quando recebe várias demandas urgentes?"]},
+],
+"Logística":[
+{nome:"Resolução de Problemas",desc:"Soluções ágeis em situações críticas",perguntas:["Descreva uma situação crítica em que precisou resolver rápido.","Quando um imprevisto acontece, qual é seu primeiro passo?","Já tomou decisão difícil sem tempo para consultar alguém?"]},
+{nome:"Trabalho sob Pressão",desc:"Qualidade em ambientes de alta demanda",perguntas:["Como se comporta emocionalmente em dias de pico?","Já passou por situação de pressão muito intensa? Como gerenciou?","O que faz para manter foco quando está sobrecarregado?"]},
+{nome:"Comunicação Assertiva",desc:"Transmissão clara de informações operacionais",perguntas:["Como comunica um problema na operação para o gestor?","Já precisou dar uma notícia ruim para cliente? Como abordou?","Como garante que informações passam certo entre turnos?"]},
+{nome:"Organização",desc:"Controle eficiente de processos e estoque",perguntas:["Como controla múltiplas cargas ou pedidos simultaneamente?","Qual rotina garante que registros estejam corretos?","Já encontrou desorganização herdada? Como resolveu?"]},
+{nome:"Responsabilidade",desc:"Comprometimento com prazos e qualidade",perguntas:["Como age quando algo sob sua responsabilidade não sai certo?","Descreva uma situação em que assumiu um erro.","O que significa responsabilidade para você na logística?"]},
+{nome:"Trabalho em Equipe",desc:"Integração com motoristas, operadores e supervisores",perguntas:["Como é sua relação com outros setores da operação?","Já precisou cobrir um colega em situação difícil?","Como age quando há conflito entre equipes?"]},
+{nome:"Adaptabilidade",desc:"Flexibilidade para diferentes cenários",perguntas:["Já teve que mudar de rota completamente no meio da operação?","Como reage quando um sistema falha no meio do trabalho?","Como se mantém produtivo diante de mudanças constantes?"]},
+],
+"Operacional":[
+{nome:"Responsabilidade",desc:"Comprometimento com normas e procedimentos",perguntas:["Como garante que seguiu todos os procedimentos corretamente?","Já presenciou colega descumprindo norma de segurança? Como agiu?","O que faz quando não tem certeza de como realizar uma etapa?"]},
+{nome:"Atenção ao Detalhe",desc:"Foco na qualidade e segurança da execução",perguntas:["Como verifica se uma tarefa foi concluída corretamente?","Já evitou problema grave por ter prestado atenção a um detalhe?","Em atividades repetitivas, como mantém a concentração?"]},
+{nome:"Trabalho em Equipe",desc:"Cooperação com colegas e supervisores",perguntas:["Como age quando um colega está sobrecarregado?","Já houve desentendimento com colega de turno? Como foi resolvido?","O que valoriza em um bom colega de trabalho operacional?"]},
+{nome:"Disciplina",desc:"Seguimento consistente de processos e horários",perguntas:["Como lida com rotinas fixas e repetitivas?","Já recebeu instrução que discordava? Como procedeu?","Como mantém pontualidade mesmo em dias difíceis?"]},
+{nome:"Comunicação Clara",desc:"Repasse direto e eficaz de informações",perguntas:["Como informa ao supervisor sobre um problema identificado?","Já passou instrução para um colega? Como garantiu que foi entendida?","Como pede ajuda quando não entende algo?"]},
+{nome:"Segurança",desc:"Consciência das normas de segurança do trabalho",perguntas:["Quais EPIs utiliza e por que cada um é importante?","Já recusou fazer algo por considerar inseguro?","Como age ao identificar uma situação de risco?"]},
+{nome:"Resiliência",desc:"Foco em condições adversas",perguntas:["Como lida com dias de alta pressão física?","Já passou por período de crise no trabalho? Como se manteve firme?","O que te motiva a manter qualidade mesmo quando difícil?"]},
+],
+"Liderança":[
+{nome:"Inteligência Emocional",desc:"Autocontrole e empatia nas relações",perguntas:["Como reage quando recebe crítica dura na frente da equipe?","Já precisou lidar com colaborador em estado emocional alterado?","O que faz para se autorregular em momentos de alta pressão?"]},
+{nome:"Comunicação Inspiradora",desc:"Capacidade de engajar e motivar",perguntas:["Como comunica metas difíceis sem gerar desmotivação?","Já precisou reverter um clima ruim na equipe?","Qual a diferença entre informar e inspirar na sua visão?"]},
+{nome:"Visão Estratégica",desc:"Planejamento com foco em resultados",perguntas:["Como conecta tarefas do dia a dia com objetivos maiores?","Descreva uma decisão estratégica que tomou.","Como antecipa cenários e prepara a equipe?"]},
+{nome:"Tomada de Decisão",desc:"Assertividade sob pressão",perguntas:["Descreva uma decisão difícil com pouco tempo e informação.","Como age quando precisa decidir algo que vai desagradar?","Como equilibra análise e intuição nas decisões?"]},
+{nome:"Desenvolvimento de Pessoas",desc:"Foco no crescimento da equipe",perguntas:["Como identifica o potencial de cada pessoa no time?","Já desenvolveu alguém que foi promovido? Como foi?","Como dá feedback difícil sem desmotivar?"]},
+{nome:"Gestão de Conflitos",desc:"Mediação eficaz em situações de tensão",perguntas:["Descreva um conflito sério entre membros da equipe.","Como age quando dois colaboradores de alto desempenho conflitam?","Qual sua abordagem quando o conflito envolve você?"]},
+{nome:"Accountability",desc:"Responsabilização pelos resultados",perguntas:["Como age quando um resultado ruim acontece na sua área?","Como cria cultura de responsabilidade sem criar medo de errar?","Já assumiu responsabilidade por erro que não foi seu?"]},
+{nome:"Resiliência",desc:"Liderança firme diante de adversidades",perguntas:["Qual foi o momento mais difícil da sua carreira como líder?","Como mantém a equipe motivada em crises prolongadas?","O que alimenta sua energia nos períodos mais desafiadores?"]},
+],
+"Geral":[
+{nome:"Comunicação",desc:"Clareza na expressão oral e escrita",perguntas:["Como se adapta para explicar algo complexo a diferentes públicos?","Já houve mal-entendido por comunicação falha? Como resolveu?","Como prefere receber instruções?"]},
+{nome:"Proatividade",desc:"Iniciativa para agir sem ser solicitado",perguntas:["Dê exemplo de quando foi além do esperado da sua função.","Como ocupa seu tempo quando não há demandas?","Já identificou e resolveu um problema sem ninguém pedir?"]},
+{nome:"Trabalho em Equipe",desc:"Integração e colaboração em grupos",perguntas:["O que considera imprescindível em um bom trabalho em equipe?","Como colabora com alguém de estilo muito diferente do seu?","Fale de quando ajudou um colega com sua própria demanda alta."]},
+{nome:"Adaptabilidade",desc:"Flexibilidade para novos contextos",perguntas:["Como reage quando um processo é completamente modificado?","Já precisou aprender algo muito novo em pouco tempo?","O que faz para manter eficiência em ambientes de mudança?"]},
+{nome:"Responsabilidade",desc:"Comprometimento com resultados e prazos",perguntas:["Como garante entrega quando algo inesperado acontece?","Já assumiu um erro e como comunicou?","O que responsabilidade significa para você profissionalmente?"]},
+{nome:"Aprendizado Contínuo",desc:"Disposição para se desenvolver",perguntas:["O que está aprendendo ou estudando por conta própria?","Como aplica no trabalho o que aprende fora?","Quando recebe feedback de melhoria, qual é sua reação?"]},
+]
+};
+
+const VAGA_MAP = {'Administrativo':'Administrativo','Logística':'Logística','Operacional':'Operacional','Liderança':'Liderança','Banco de Talentos':'Geral'};
+
+let AVALIACAO = {vagaKey:null,skills:[],ratings:[],cardAtual:0,concluida:false};
+
+// ══ SELECT CANDIDATOS ══
+function popularSelectCandidatos() {
+  const sel=document.getElementById('sel-candidato');
+  if(!sel)return;
+  const val=sel.value;
+  sel.innerHTML='<option value="">— Selecione —</option>';
+  CANDIDATOS.forEach(c=>{
+    const o=document.createElement('option');
+    o.value=c.id;
+    o.textContent=c.nome+' · '+(c.vaga||'—')+(c.score_total!=null?' · '+c.score_total+'%':'');
+    sel.appendChild(o);
+  });
+  if(val)sel.value=val;
+  // also populate agenda
+  const sel2=document.getElementById('ev-candidato');
+  if(sel2){
+    const v2=sel2.value;
+    sel2.innerHTML='<option value="">— Nenhum —</option>';
+    CANDIDATOS.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.nome;sel2.appendChild(o);});
+    if(v2)sel2.value=v2;
+  }
+}
+
+window.onCandidatoChange=function(){
+  const id=document.getElementById('sel-candidato').value;
+  if(!id){resetAvaliacao();return;}
+  const c=CANDIDATOS.find(x=>x.id===id);
+  if(!c)return;
+  const vArea=VAGA_MAP[c.vaga]||'Geral';
+  document.getElementById('sel-vaga').value=vArea;
+  onVagaChange();
+  // Pré-preencher sala Jitsi
+  const sala=gerarNomeSala(c.nome);
+  const inp=document.getElementById('jitsi-room-input');
+  if(inp){inp.value=sala;document.getElementById('jitsi-room-wrap').style.display='flex';document.getElementById('btn-jitsi-entrar').style.display='flex';}
+};
+
+window.onVagaChange=function(){
+  const k=document.getElementById('sel-vaga').value;
+  if(!k){resetAvaliacao();return;}
+  iniciarAvaliacao(k);
+};
+
+function resetAvaliacao(){
+  AVALIACAO={vagaKey:null,skills:[],ratings:[],cardAtual:0,concluida:false};
+  const a=document.getElementById('skill-cards-area');
+  if(a)a.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;padding:28px;color:var(--muted)"><div style="font-size:2.2rem;margin-bottom:10px;opacity:.6">🎯</div><p style="font-size:.75rem;line-height:1.6">Selecione candidato e vaga para iniciar.</p></div>';
+  const r=document.getElementById('resultado-auto');if(r)r.style.display='none';
+  const rf=document.getElementById('skill-rating-fixed');if(rf)rf.style.display='none';
+  const nf=document.getElementById('skill-nav-fixed');if(nf)nf.style.display='none';
+}
+
+function iniciarAvaliacao(vagaKey){
+  const skills=SS[vagaKey]||SS['Geral'];
+  AVALIACAO={vagaKey,skills,ratings:new Array(skills.length).fill(null),cardAtual:0,concluida:false};
+  const r=document.getElementById('resultado-auto');if(r)r.style.display='none';
+  const o=document.getElementById('obs-entrevista');if(o)o.value='';
+  renderCardAtual();
+}
+
+function renderCardAtual(){
+  const area=document.getElementById('skill-cards-area');
+  const rf=document.getElementById('skill-rating-fixed');
+  const nf=document.getElementById('skill-nav-fixed');
+  const rb=document.getElementById('rating-buttons-fixed');
+  if(!area||!rf||!nf||!rb)return;
+
+  const {skills,ratings,cardAtual}=AVALIACAO;
+  const total=skills.length,avaliados=ratings.filter(r=>r!==null).length;
+  const pct=Math.round((avaliados/total)*100);
+
+  const dots=skills.map((s,i)=>{
+    let cls='skill-dot';
+    if(i===cardAtual)cls+=' current';
+    else if(ratings[i]==='pleno')cls+=' done-pleno';
+    else if(ratings[i]==='parcial')cls+=' done-parcial';
+    else if(ratings[i]==='nao')cls+=' done-nao';
+    return '<div class="'+cls+'" onclick="irParaCard('+i+')" title="'+s.nome+'"></div>';
+  }).join('');
+
+  const skill=skills[cardAtual];
+  const ra=ratings[cardAtual];
+  let cardCls='skill-card';
+  if(ra==='pleno')cardCls+=' rated-pleno';
+  else if(ra==='parcial')cardCls+=' rated-parcial';
+  else if(ra==='nao')cardCls+=' rated-nao';
+  const pergs=skill.perguntas.map(p=>'<li>'+p+'</li>').join('');
+  const isLast=cardAtual===total-1,isFirst=cardAtual===0;
+
+  area.innerHTML='<div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;display:flex;justify-content:space-between"><span>Progresso</span><span>'+avaliados+'/'+total+'</span></div>'
+    +'<div style="height:4px;background:var(--border);border-radius:10px;overflow:hidden;margin-bottom:8px"><div style="height:100%;background:linear-gradient(90deg,var(--teal),var(--teal-l));border-radius:10px;transition:width .4s ease;width:'+pct+'%"></div></div>'
+    +'<div style="display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap">'+dots+'</div>'
+    +'<div class="'+cardCls+'">'
+    +'<div class="skill-card-top"><div class="skill-card-number">Competência '+(cardAtual+1)+' de '+total+' · '+AVALIACAO.vagaKey+'</div><div class="skill-card-name">'+skill.nome+'</div><div class="skill-card-desc">'+skill.desc+'</div></div>'
+    +'<div class="skill-questions"><div class="skill-q-title">💬 Perguntas de apoio</div><ul>'+pergs+'</ul></div>'
+    +'</div>';
+
+  rf.style.display='block';
+  rb.innerHTML='<button class="rating-btn nao-atende '+(ra==='nao'?'selected':'')+'" onclick="marcarNivel('nao')"><span class="rb-icon">❌</span>Não Atende</button>'
+    +'<button class="rating-btn parcial '+(ra==='parcial'?'selected':'')+'" onclick="marcarNivel('parcial')"><span class="rb-icon">⚠️</span>Atende Parcialmente</button>'
+    +'<button class="rating-btn pleno '+(ra==='pleno'?'selected':'')+'" onclick="marcarNivel('pleno')"><span class="rb-icon">✅</span>Atende Plenamente</button>';
+
+  nf.style.display='flex';
+  nf.innerHTML='<button class="btn-nav" onclick="irParaCard('+(cardAtual-1)+')" '+(isFirst?'disabled':'')+'>← Anterior</button>'
+    +(!isLast
+      ?'<button class="btn-nav next" onclick="irParaCard('+(cardAtual+1)+')">Próxima →</button>'
+      :'<button class="btn-nav next" onclick="concluirAvaliacao()" style="background:'+(avaliados===total?'var(--teal)':'var(--muted)')+'">'+( avaliados===total?'✔ Ver Resultado':'Concluir ('+avaliados+'/'+total+')')+'</button>');
+}
+
+window.irParaCard=function(idx){if(idx<0||idx>=AVALIACAO.skills.length)return;AVALIACAO.cardAtual=idx;renderCardAtual();};
+
+window.marcarNivel=function(nivel){
+  const{cardAtual,skills}=AVALIACAO;
+  AVALIACAO.ratings[cardAtual]=nivel;
+  renderCardAtual();
+  if(cardAtual<skills.length-1)setTimeout(()=>irParaCard(cardAtual+1),350);
+  else{const av=AVALIACAO.ratings.filter(r=>r!==null).length;if(av===skills.length)setTimeout(concluirAvaliacao,400);}
+};
+
+function concluirAvaliacao(){
+  const{ratings,skills}=AVALIACAO;
+  const av=ratings.filter(r=>r!==null).length;
+  if(av<skills.length){const pv=ratings.findIndex(r=>r===null);toast('⚠️ Avalie: "'+skills[pv].nome+'"','danger');irParaCard(pv);return;}
+  const PESOS={nao:0,parcial:.5,pleno:1};
+  const pts=ratings.reduce((s,r)=>s+(PESOS[r]||0),0);
+  const score=Math.round((pts/skills.length)*100);
+  const aprovado=score>=70;
+  AVALIACAO={...AVALIACAO,concluida:true,scoreFinal:score,aprovado,
+    fortalezas:skills.filter((s,i)=>ratings[i]==='pleno').map(s=>s.nome),
+    parciais:skills.filter((s,i)=>ratings[i]==='parcial').map(s=>s.nome),
+    melhorias:skills.filter((s,i)=>ratings[i]==='nao').map(s=>s.nome)
+  };
+  const box=document.getElementById('resultado-box');
+  const icon=document.getElementById('resultado-icon');
+  const pct=document.getElementById('resultado-pct');
+  const status=document.getElementById('resultado-status');
+  const btn=document.getElementById('btn-registrar');
+  const res=document.getElementById('resultado-auto');
+  box.style.background=aprovado?'var(--success-l)':'var(--danger-l)';
+  box.style.border='2px solid '+(aprovado?'var(--success)':'var(--danger)');
+  box.style.borderRadius='11px';
+  icon.textContent=aprovado?'🌟':'❌';
+  pct.style.color=aprovado?'var(--success)':'var(--danger)';
+  pct.textContent=score+'%';
+  status.style.color=aprovado?'var(--success)':'var(--danger)';
+  status.textContent=aprovado?'✅ Pré-selecionado(a) — ≥70%':'❌ Reprovado(a) — Abaixo de 70%';
+  btn.style.background=aprovado?'var(--success)':'var(--danger)';
+  btn.style.color='white';
+  btn.textContent=aprovado?'⭐ Confirmar Pré-Seleção':'📋 Registrar Reprovação';
+  res.style.display='flex';
+}
+
+window.registrarResultado=async function(){
+  if(!AVALIACAO.concluida)return;
+  const id=document.getElementById('sel-candidato').value;
+  if(!id){toast('⚠️ Selecione um candidato.','danger');return;}
+  const obs=document.getElementById('obs-entrevista')?.value||'';
+  const dados={
+    score_entrevista:AVALIACAO.scoreFinal,
+    status:AVALIACAO.aprovado?'Pré-Selecionado':'Reprovado',
+    kanban:AVALIACAO.aprovado?'Proposta':'Triagem',
+    fortalezas:AVALIACAO.fortalezas,
+    parciais:AVALIACAO.parciais,
+    melhorias:AVALIACAO.melhorias,
+    obs_entrevista:obs,
+    vaga_entrevistada:AVALIACAO.vagaKey,
+    entrevistadoEm:serverTimestamp()
+  };
+  await updateDoc(doc(db,'tiq_candidatos',id),dados);
+  const c=CANDIDATOS.find(x=>x.id===id);
+  if(AVALIACAO.aprovado){
+    toast('⭐ '+(c?.nome||'Candidato')+' pré-selecionado(a) com '+AVALIACAO.scoreFinal+'%!','success');
+    adicionarAtividade((c?.nome||'Candidato')+' pré-selecionado(a) · '+AVALIACAO.scoreFinal+'%','var(--success)');
+  }else{
+    toast('📋 '+(c?.nome||'Candidato')+' reprovado(a) · '+AVALIACAO.scoreFinal+'%','danger');
+    adicionarAtividade((c?.nome||'Candidato')+' reprovado(a) · '+AVALIACAO.scoreFinal+'%','var(--danger)');
+  }
+  document.getElementById('sel-candidato').value='';document.getElementById('sel-vaga').value='';
+  const nm=c?.nome||'Candidato';const ap=AVALIACAO.aprovado;
+  resetAvaliacao();
+  setTimeout(()=>showConfirm('⭐','Resultado Registrado!',nm+(ap?' pré-selecionado(a)':' reprovado(a)')+'. Ir para Feedbacks?','Ir',()=>navTo('feedbacks')),300);
+};
+
+window.imprimirRelatorio=function(){
+  if(!AVALIACAO.concluida){toast('⚠️ Conclua a avaliação primeiro.','danger');return;}
+  window.print();
+};
+
+window.selecionarEntrevista=function(id){
+  navTo('entrevista');
+  setTimeout(()=>{
+    const sel=document.getElementById('sel-candidato');
+    if(sel){sel.value=id;onCandidatoChange();}
+    toast('🎥 Candidato selecionado para entrevista.','info');
+  },200);
+};
+
 // ══ JITSI / ENTREVISTA ══
 let jitsiAPI = null;
 let jitsiSala = null;
@@ -1658,9 +1953,15 @@ window.toggleSidebar = function() {
   const sb=document.getElementById('sidebar');
   const collapsed = sb.classList.toggle('collapsed');
   const icon = document.getElementById('sb-toggle-icon');
-  if(icon) icon.innerHTML = collapsed
-    ? '<path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"/>'
-    : '<path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"/>';
+  if(icon) {
+    if(collapsed) {
+      icon.innerHTML='<path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"/>';
+      sb.title='Expandir menu';
+    } else {
+      icon.innerHTML='<path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"/>';
+      sb.title='';
+    }
+  }
   setTimeout(()=>{if(charts.funil)charts.funil.resize();if(charts.area)charts.area.resize();},350);
 };
 
