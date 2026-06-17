@@ -796,13 +796,10 @@ function iniciarListeners() {
     renderProximasEntrevistas();
   });
 
-  // Recrutadores
+  // Recrutadores (listener já iniciado no init, aqui só atualiza a config)
   onSnapshot(collection(db,'tiq_recrutadores'), snap => {
-    if(!snap.empty) {
-      RECRUTADORES = snap.docs.map(d=>({id:d.id,...d.data()}));
-      popularLoginSelect();
-      renderRecrutadores();
-    }
+    RECRUTADORES = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderRecrutadores();
   });
 
   document.getElementById('fb-status-txt').textContent = 'Firebase Online';
@@ -823,15 +820,17 @@ async function seedRecrutadores() {
 // ══ LOGIN ══
 window.popularLoginSelect = function() {
   const sel = document.getElementById('login-user-sel');
+  if(!sel) return;
   const val = sel.value;
   sel.innerHTML = '<option value="">— Selecione —</option>';
-  RECRUTADORES.forEach(r => {
+  RECRUTADORES.filter(r=>r.ativo!==false).forEach(r => {
     const o = document.createElement('option');
     o.value = r.id;
     o.textContent = r.nome + ' (' + (r.role==='admin'?'Admin':'Recrutador') + ')';
     sel.appendChild(o);
   });
   if(val) sel.value = val;
+  console.log('Login select populado com', RECRUTADORES.length, 'recrutadores');
 };
 
 window.fazerLogin = function() {
@@ -1515,7 +1514,29 @@ window.toast = function(msg,type='') {
 
 // ══ INIT ══
 atualizarDataHora();
-await seedRecrutadores();
+
+async function init() {
+  try {
+    document.getElementById('login-loading').style.display = 'block';
+    document.getElementById('login-loading').textContent = '⏳ Conectando ao Firebase...';
+
+    // Listener de recrutadores ANTES do login
+    onSnapshot(collection(db,'tiq_recrutadores'), snap => {
+      RECRUTADORES = snap.docs.map(d=>({id:d.id,...d.data()}));
+      popularLoginSelect();
+    });
+
+    // Seed recrutadores padrão se não existir
+    await seedRecrutadores();
+
+    document.getElementById('login-loading').style.display = 'none';
+  } catch(e) {
+    console.error('Init error:', e);
+    document.getElementById('login-loading').textContent = '⚠️ Erro de conexão. Recarregue a página.';
+  }
+}
+
+init();
 
 </script>
 </body>
